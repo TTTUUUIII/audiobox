@@ -2,6 +2,7 @@ package cn.touchair.audiobox.streamin;
 
 import android.media.AudioFormat;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 public abstract class AbstractRecorder<T, R> {
@@ -16,7 +17,7 @@ public abstract class AbstractRecorder<T, R> {
     protected AudioFormat format;
     protected byte bufferType;
     protected CaptureListener<R> listener;
-    public AbstractRecorder(AudioFormat format, Class<T> clazz) {
+    public AbstractRecorder(@NonNull AudioFormat format, Class<T> clazz) {
         this.format = format;
         String canonicalName = clazz.getCanonicalName();
         assert canonicalName != null;

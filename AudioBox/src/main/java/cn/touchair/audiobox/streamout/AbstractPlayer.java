@@ -7,8 +7,9 @@ import android.os.Looper;
 import android.os.Message;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
-public abstract class AbstractPlayer {
+public abstract class AbstractPlayer<T> {
     protected final String TAG = getClass().getSimpleName();
 
     protected static final int MSG_WHAT_PAUSE = 1;
@@ -42,7 +43,7 @@ public abstract class AbstractPlayer {
                 .build());
     }
 
-    public AbstractPlayer(AudioAttributes attributes) {
+    public AbstractPlayer(@NonNull AudioAttributes attributes) {
         this(attributes, new AudioFormat.Builder()
                 .setEncoding(DEFAULT_ENCODING)
                 .setSampleRate(DEFAULT_SAMPLE_RATE)
@@ -50,7 +51,7 @@ public abstract class AbstractPlayer {
                 .build());
     }
 
-    public AbstractPlayer(AudioAttributes attributes, AudioFormat format) {
+    public AbstractPlayer(@NonNull AudioAttributes attributes, @NonNull AudioFormat format) {
         this.attributes = attributes;
         this.format = format;
     }
@@ -67,6 +68,10 @@ public abstract class AbstractPlayer {
         } catch (Exception ignored) {}
     }
 
+    public void setAudioSource(T source) {
+        setAudioSource(source, null);
+    }
+    public abstract void setAudioSource(T source, @Nullable AudioFormat format);
     public abstract void play();
     public abstract void pause();
 

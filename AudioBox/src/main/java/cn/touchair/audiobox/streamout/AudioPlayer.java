@@ -1,8 +1,11 @@
 package cn.touchair.audiobox.streamout;
 
+import android.media.AudioAttributes;
+import android.media.AudioFormat;
 import android.media.AudioTrack;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import java.io.File;
 import java.io.IOException;
@@ -11,7 +14,7 @@ import java.util.Objects;
 
 import cn.touchair.audiobox.common.Prerequisites;
 
-public class AudioPlayer extends AbstractPlayer{
+public class AudioPlayer extends AbstractPlayer<File>{
 
     private File mFile;
     private boolean mReleased = false;
@@ -20,11 +23,23 @@ public class AudioPlayer extends AbstractPlayer{
     private int mOffset = 0;
     private PlaybackThread mThread;
 
-    public void setAudioSource(@NonNull File file) {
+    public AudioPlayer() {
+        super();
+    }
+
+    public AudioPlayer(AudioAttributes attributes) {
+        super(attributes);
+    }
+
+    @Override
+    public void setAudioSource(@NonNull File file, @Nullable AudioFormat format) {
         Objects.requireNonNull(file);
         Prerequisites.check(file.exists(), "File " + file + " not found!");
         Prerequisites.check(file.isFile(), "File " + file + " not a file type!");
         String fileName = file.getName();
+        if (format != null) {
+            this.format = format;
+        }
         if (fileName.endsWith("wav")) {
             mOffset = 44;
         } else if (fileName.endsWith("pcm")) {
@@ -37,7 +52,7 @@ public class AudioPlayer extends AbstractPlayer{
 
     public void setAudioSource(@NonNull String filePath) {
         Objects.requireNonNull(filePath);
-        setAudioSource(new File(filePath));
+        setAudioSource(new File(filePath), null);
     }
 
     @Override

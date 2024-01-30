@@ -4,10 +4,12 @@ import android.media.AudioAttributes;
 import android.media.AudioFormat;
 import android.media.AudioTrack;
 
+import androidx.annotation.NonNull;
+
 import cn.touchair.audiobox.common.Prerequisites;
 import cn.touchair.audiobox.common.RawPacket;
 
-public class RawPlayer extends AbstractPlayer {
+public class RawPlayer extends AbstractPlayer<RawPacket> {
     private RawPacket mPacket;
 
     private boolean mReleased = false;
@@ -19,19 +21,11 @@ public class RawPlayer extends AbstractPlayer {
         super();
     }
 
-    public RawPlayer(AudioAttributes attributes) {
+    public RawPlayer(@NonNull AudioAttributes attributes) {
         super(attributes);
     }
 
-
-    public void setAudioSource(RawPacket packet) {
-        setAudioSource(packet, new AudioFormat.Builder()
-                .setEncoding(AudioFormat.ENCODING_PCM_16BIT)
-                .setSampleRate(DEFAULT_SAMPLE_RATE)
-                .setChannelMask(DEFAULT_CHANNEL_MASK)
-                .build());
-    }
-
+    @Override
     public void setAudioSource(RawPacket packet, AudioFormat format) {
         Prerequisites.check(!mReleased, "Player already released!");
         this.format = format;

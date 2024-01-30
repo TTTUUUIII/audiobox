@@ -6,6 +6,7 @@ import android.media.AudioRecord;
 import android.media.MediaRecorder;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresPermission;
 
 import cn.touchair.audiobox.common.Prerequisites;
@@ -26,7 +27,7 @@ public class AudioRecorder<T, R> extends AbstractRecorder<T, R> {
     }
 
     @RequiresPermission("android.permission.RECORD_AUDIO")
-    public AudioRecorder(AudioFormat format, Class<T> clazz) {
+    public AudioRecorder(@NonNull AudioFormat format, Class<T> clazz) {
         super(format, clazz);
     }
 

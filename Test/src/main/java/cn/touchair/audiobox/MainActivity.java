@@ -14,6 +14,8 @@ import java.util.Arrays;
 
 import cn.touchair.audiobox.streamin.AudioRecorder;
 import cn.touchair.audiobox.streamin.CaptureListener;
+import cn.touchair.audiobox.streamout.AudioPlayer;
+import cn.touchair.audiobox.streamout.RawPlayer;
 
 public class MainActivity extends AppCompatActivity implements CaptureListener<short[]> {
     private static final String TAG = MainActivity.class.getSimpleName();
