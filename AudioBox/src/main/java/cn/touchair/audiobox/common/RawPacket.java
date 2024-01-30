@@ -45,7 +45,7 @@ public class RawPacket {
         }
 
         public Builder setHeader(short[] header) {
-            return setHeader(BoxConvert.asByteArray(header));
+            return setHeader(AudioConvert.asByteArray(header));
         }
 
         public Builder setBody(byte[] body) {
@@ -54,7 +54,7 @@ public class RawPacket {
         }
 
         public Builder setBody(short[] body) {
-            return setBody(BoxConvert.asByteArray(body));
+            return setBody(AudioConvert.asByteArray(body));
         }
 
         public Builder setTail(byte[] tail) {
@@ -63,7 +63,7 @@ public class RawPacket {
         }
 
         public Builder setTail(short[] tail) {
-            return setTail(BoxConvert.asByteArray(tail));
+            return setTail(AudioConvert.asByteArray(tail));
         }
 
         public RawPacket build() {

@@ -1,5 +1,6 @@
 package cn.touchair.audiobox.streamout;
 
+import android.media.AudioAttributes;
 import android.media.AudioFormat;
 import android.media.AudioTrack;
 
@@ -13,6 +14,15 @@ public class RawPlayer extends AbstractPlayer {
     private boolean mPrepared = false;
     private int mMinBufferSize;
     private PlaybackThread mThread;
+
+    public RawPlayer() {
+        super();
+    }
+
+    public RawPlayer(AudioAttributes attributes) {
+        super(attributes);
+    }
+
 
     public void setAudioSource(RawPacket packet) {
         setAudioSource(packet, new AudioFormat.Builder()

@@ -39,12 +39,15 @@ public abstract class AbstractPlayer {
     public AbstractPlayer() {
         this(new AudioAttributes.Builder()
                 .setUsage(DEFAULT_USAGE)
-                .build(),
-                new AudioFormat.Builder()
-                        .setEncoding(DEFAULT_ENCODING)
-                        .setSampleRate(DEFAULT_SAMPLE_RATE)
-                        .setChannelMask(DEFAULT_CHANNEL_MASK)
-                        .build());
+                .build());
+    }
+
+    public AbstractPlayer(AudioAttributes attributes) {
+        this(attributes, new AudioFormat.Builder()
+                .setEncoding(DEFAULT_ENCODING)
+                .setSampleRate(DEFAULT_SAMPLE_RATE)
+                .setChannelMask(DEFAULT_CHANNEL_MASK)
+                .build());
     }
 
     public AbstractPlayer(AudioAttributes attributes, AudioFormat format) {

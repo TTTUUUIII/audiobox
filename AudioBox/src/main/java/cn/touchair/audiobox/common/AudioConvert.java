@@ -4,7 +4,7 @@ import androidx.annotation.NonNull;
 
 import java.util.Objects;
 
-public class BoxConvert {
+public abstract class AudioConvert {
 
     public static short[] asShortArray(byte[] src, int offset, int len) {
         int dstLength = len >>> 1;
