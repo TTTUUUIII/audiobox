@@ -5,6 +5,7 @@ import android.media.AudioFormat;
 import android.media.AudioTrack;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import cn.touchair.audiobox.common.Prerequisites;
 import cn.touchair.audiobox.common.RawPacket;
@@ -26,13 +27,15 @@ public class RawPlayer extends AbstractPlayer<RawPacket> {
     }
 
     @Override
-    public void setAudioSource(RawPacket packet, AudioFormat format) {
+    public void setAudioSource(RawPacket packet, @Nullable AudioFormat format) {
         Prerequisites.check(!mReleased, "Player already released!");
-        this.format = format;
+        if (format != null) {
+            this.format = format;
+        }
         mMinBufferSize = AudioTrack.getMinBufferSize(
-                format.getSampleRate(),
-                format.getChannelMask(),
-                format.getEncoding());
+                this.format.getSampleRate(),
+                this.format.getChannelMask(),
+                this.format.getEncoding());
         mPacket = packet;
         mPacket.fillZero(mMinBufferSize);
     }

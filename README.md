@@ -16,7 +16,28 @@ AudioBox是一个专为Android平台编写的音频库，支持播放和录音�
 
 ## 2. 快速开始
 
-### 2.1 播放
+### 2.1 添加依赖
+
+`settings.gradle`
+
+```groovy
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        maven { url 'https://jitpack.io' }
+    }
+}
+```
+
+`build.gradle[module]`
+
+```groovy
+dependencies {
+    implementation 'com.github.TTTUUUIII:audiobox:v1.1.0'
+}
+```
+
+### 2.2 播放
 
 **AudioPlayer**
 
@@ -36,7 +57,7 @@ player.setAudioSource(new RawPacket.Builder()
 player.play();
 ```
 
-### 2.2 录音
+### 2.3 录音
 
 **v1.0.\***
 
