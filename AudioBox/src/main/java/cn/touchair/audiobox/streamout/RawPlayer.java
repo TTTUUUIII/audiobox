@@ -103,6 +103,8 @@ public class RawPlayer extends AbstractPlayer<RawPacket> {
                         track.write(mPacket.tail, 0, mPacket.tail.length, AudioTrack.WRITE_BLOCKING);
                         handler.sendEmptyMessage(MSG_WHAT_PAUSE);
                     }
+                } else {
+                    flag = true;
                 }
             }
             track.write(mPacket.tail, 0, mPacket.tail.length, AudioTrack.WRITE_BLOCKING);

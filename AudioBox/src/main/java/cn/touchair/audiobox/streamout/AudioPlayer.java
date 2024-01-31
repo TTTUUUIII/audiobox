@@ -121,9 +121,8 @@ public class AudioPlayer extends AbstractPlayer<File>{
                         if (readNumInBytes > 0) {
                             track.write(buffer, 0, readNumInBytes);
                         } else if (readNumInBytes == -1) {
-                            if (loop) {
-                                fd.seek(mOffset);
-                            } else {
+                            fd.seek(mOffset);
+                            if (!loop) {
                                 handler.sendEmptyMessage(MSG_WHAT_PAUSE);
                             }
                         }
