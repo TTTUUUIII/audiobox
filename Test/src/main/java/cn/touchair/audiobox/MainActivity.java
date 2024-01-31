@@ -26,12 +26,17 @@ public class MainActivity extends AppCompatActivity implements CaptureListener<s
 //    private AudioPlayer player = new AudioPlayer();
 //    private RawPlayer player = new RawPlayer();
     @SuppressLint("MissingPermission")
-    private AudioRecorder<Short, short[]> recorder;
+    private AudioRecorder<short[]> recorder;
 
     @SuppressLint("MissingPermission")
     private final Runnable onLaunchAction = () -> {
-        recorder = new AudioRecorder<>(Short.class);
-        recorder.setCaptureListener(this);
+        recorder = new AudioRecorder<>();
+        recorder.setCaptureListener(new CaptureListener<short[]>() {
+            @Override
+            public void onCapture(short[] data) {
+                /*handle audio data*/
+            }
+        }, short[].class);
         recorder.start();
     };
 

@@ -11,24 +11,24 @@ import androidx.annotation.RequiresPermission;
 
 import cn.touchair.audiobox.common.Prerequisites;
 
-public class AudioRecorder<T, R> extends AbstractRecorder<T, R> {
+public class AudioRecorder<T> extends AbstractRecorder<T> {
 
     private boolean mPrepared = false;
     private boolean mReleased = false;
     private RecordThread mThread;
 
     @RequiresPermission("android.permission.RECORD_AUDIO")
-    public AudioRecorder(Class<T> clazz) {
+    public AudioRecorder() {
         this(new AudioFormat.Builder()
                 .setChannelMask(DEFAULT_CHANNEL_MASK)
                 .setEncoding(DEFAULT_ENCODING)
                 .setSampleRate(DEFAULT_SAMPLE_RATE)
-                .build(), clazz);
+                .build());
     }
 
     @RequiresPermission("android.permission.RECORD_AUDIO")
-    public AudioRecorder(@NonNull AudioFormat format, Class<T> clazz) {
-        super(format, clazz);
+    public AudioRecorder(@NonNull AudioFormat format) {
+        super(format);
     }
 
     @Override
@@ -128,7 +128,7 @@ public class AudioRecorder<T, R> extends AbstractRecorder<T, R> {
             if (readNum > 0 && listener != null) {
                 final short[] dest = new short[readNum];
                 System.arraycopy(buffer1, 0, dest, 0, dest.length);
-                listener.onCapture((R)dest);
+                listener.onCapture((T)dest);
             }
         }
 
@@ -137,7 +137,7 @@ public class AudioRecorder<T, R> extends AbstractRecorder<T, R> {
             if (readNum > 0 && listener != null) {
                 final byte[] dest = new byte[readNum];
                 System.arraycopy(buffer2, 0, dest, 0, dest.length);
-                listener.onCapture((R) dest);
+                listener.onCapture((T) dest);
             }
         }
 
@@ -146,7 +146,7 @@ public class AudioRecorder<T, R> extends AbstractRecorder<T, R> {
             if (readNum > 0 && listener != null) {
                 final float[] dest = new float[readNum];
                 System.arraycopy(buffer3, 0, dest, 0, dest.length);
-                listener.onCapture((R) dest);
+                listener.onCapture((T) dest);
             }
         }
 

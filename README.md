@@ -38,14 +38,32 @@ player.play();
 
 ### 2.2 录音
 
+**v1.0.\***
+
 ```java
 AudioRecorder<Short, short[]> recorder = new AudioRecorder<>(Short.class);
+
 recorder.setCaptureListener(new CaptureListener<short[]>() {
     @Override
     public void onCapture(short[] data) {
         /*handle audio data*/
     }
 });
+
+recorder.start();
+```
+**v1.1.\***
+
+```java
+AudioRecorder<short[]> recorder = new AudioRecorder<>();
+
+recorder.setCaptureListener(new CaptureListener<short[]>() {
+    @Override
+    public void onCapture(short[] data) {
+        /*handle audio data*/
+    }
+}, short[].class);
+
 recorder.start();
 ```
 
