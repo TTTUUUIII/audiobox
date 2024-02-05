@@ -5,6 +5,8 @@ import android.media.AudioFormat;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import cn.touchair.audiobox.interfaces.CaptureListener;
+
 public abstract class AbstractRecorder<T> {
     protected final String TAG = getClass().getSimpleName();
 
