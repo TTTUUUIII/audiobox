@@ -9,7 +9,12 @@ import android.os.Message;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-public abstract class AbstractPlayer<T> {
+import java.util.Objects;
+
+import cn.touchair.audiobox.common.PrettyTextUtils;
+import cn.touchair.audiobox.interfaces.AudioComponents;
+
+public abstract class AbstractPlayer<T> extends AudioComponents {
     protected final String TAG = getClass().getSimpleName();
 
     protected static final int MSG_WHAT_PAUSE = 1;
@@ -21,6 +26,8 @@ public abstract class AbstractPlayer<T> {
     protected AudioAttributes attributes;
     protected AudioFormat format;
     protected boolean loop = false;
+
+    protected T source;
 
     protected final Handler handler = new Handler(Looper.getMainLooper()) {
         @Override
@@ -54,6 +61,7 @@ public abstract class AbstractPlayer<T> {
     public AbstractPlayer(@NonNull AudioAttributes attributes, @NonNull AudioFormat format) {
         this.attributes = attributes;
         this.format = format;
+        showParameters();
     }
 
     public void setLoop(boolean loop) {
@@ -68,13 +76,30 @@ public abstract class AbstractPlayer<T> {
         } catch (Exception ignored) {}
     }
 
-    public void setAudioSource(T source) {
+    public void setAudioSource(@NonNull T source) {
         setAudioSource(source, null);
     }
-    public abstract void setAudioSource(T source, @Nullable AudioFormat format);
+    public void setAudioSource(@NonNull T source, @Nullable AudioFormat format) {
+        Objects.requireNonNull(source);
+        if (format != null) {
+            this.format = format;
+        }
+        this.source = source;
+    }
     public abstract void play();
     public abstract void pause();
 
     public abstract void reset();
     public abstract void release();
+
+    public void showParameters() {
+        Object[][] rows = new Object[][] {
+                {"sampleRate", format.getSampleRate()},
+                {"channels", format.getChannelCount()},
+                {"encoding", format.getEncoding()},
+                {"usage", usgaeToString(attributes.getUsage())},
+        };
+        String table = PrettyTextUtils.table("PLAYER INFO", rows);
+        System.out.println(table);
+    }
 }

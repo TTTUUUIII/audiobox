@@ -11,7 +11,6 @@ import cn.touchair.audiobox.common.Prerequisites;
 import cn.touchair.audiobox.common.RawPacket;
 
 public class RawPlayer extends AbstractPlayer<RawPacket> {
-    private RawPacket mPacket;
 
     private boolean mReleased = false;
     private boolean mPrepared = false;
@@ -27,17 +26,14 @@ public class RawPlayer extends AbstractPlayer<RawPacket> {
     }
 
     @Override
-    public void setAudioSource(RawPacket packet, @Nullable AudioFormat format) {
+    public void setAudioSource(@NonNull RawPacket packet, @Nullable AudioFormat format) {
         Prerequisites.check(!mReleased, "Player already released!");
-        if (format != null) {
-            this.format = format;
-        }
+        super.setAudioSource(packet, format);
         mMinBufferSize = AudioTrack.getMinBufferSize(
                 this.format.getSampleRate(),
                 this.format.getChannelMask(),
                 this.format.getEncoding());
-        mPacket = packet;
-        mPacket.fillZero(mMinBufferSize);
+        source.fillZero(mMinBufferSize);
     }
 
     @Override
@@ -73,7 +69,7 @@ public class RawPlayer extends AbstractPlayer<RawPacket> {
     public void release() {
         reset();
         mReleased = true;
-        mPacket = null;
+        source = null;
     }
 
     private class PlaybackThread extends Thread {
@@ -98,19 +94,19 @@ public class RawPlayer extends AbstractPlayer<RawPacket> {
             while (!exit) {
                 if (playing) {
                     if (flag) {
-                        track.write(mPacket.header, 0, mPacket.header.length, AudioTrack.WRITE_BLOCKING);
+                        track.write(source.header, 0, source.header.length, AudioTrack.WRITE_BLOCKING);
                         flag = false;
                     }
-                    track.write(mPacket.body, 0, mPacket.body.length, AudioTrack.WRITE_BLOCKING);
+                    track.write(source.body, 0, source.body.length, AudioTrack.WRITE_BLOCKING);
                     if (!loop) {
-                        track.write(mPacket.tail, 0, mPacket.tail.length, AudioTrack.WRITE_BLOCKING);
+                        track.write(source.tail, 0, source.tail.length, AudioTrack.WRITE_BLOCKING);
                         handler.sendEmptyMessage(MSG_WHAT_PAUSE);
                     }
                 } else {
                     flag = true;
                 }
             }
-            track.write(mPacket.tail, 0, mPacket.tail.length, AudioTrack.WRITE_BLOCKING);
+            track.write(source.tail, 0, source.tail.length, AudioTrack.WRITE_BLOCKING);
             track.stop();
             track.release();
         }

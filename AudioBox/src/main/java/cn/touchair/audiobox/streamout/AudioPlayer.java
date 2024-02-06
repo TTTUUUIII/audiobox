@@ -15,8 +15,6 @@ import java.util.Objects;
 import cn.touchair.audiobox.common.Prerequisites;
 
 public class AudioPlayer extends AbstractPlayer<File>{
-
-    private File mFile;
     private boolean mReleased = false;
     private boolean mPrepared = false;
 
@@ -33,13 +31,10 @@ public class AudioPlayer extends AbstractPlayer<File>{
 
     @Override
     public void setAudioSource(@NonNull File file, @Nullable AudioFormat format) {
-        Objects.requireNonNull(file);
+        super.setAudioSource(file, format);
         Prerequisites.check(file.exists(), "File " + file + " not found!");
         Prerequisites.check(file.isFile(), "File " + file + " not a file type!");
         String fileName = file.getName();
-        if (format != null) {
-            this.format = format;
-        }
         if (fileName.endsWith("wav")) {
             mOffset = 44;
         } else if (fileName.endsWith("pcm")) {
@@ -47,7 +42,6 @@ public class AudioPlayer extends AbstractPlayer<File>{
         } else {
             throw new RuntimeException("This file type not support");
         }
-        mFile = file;
     }
 
     public void setAudioSource(@NonNull String filePath) {
@@ -88,7 +82,7 @@ public class AudioPlayer extends AbstractPlayer<File>{
     public void release() {
         reset();
         mReleased = true;
-        mFile = null;
+        source = null;
     }
 
     private class PlaybackThread extends Thread {
@@ -112,7 +106,7 @@ public class AudioPlayer extends AbstractPlayer<File>{
 
         @Override
         public void run() {
-            try (RandomAccessFile fd = new RandomAccessFile(mFile, "r")){
+            try (RandomAccessFile fd = new RandomAccessFile(source, "r")){
                 fd.seek(mOffset);
                 byte[] buffer = new byte[4096];
                 while (!exit) {

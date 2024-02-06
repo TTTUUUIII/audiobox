@@ -5,9 +5,11 @@ import android.media.AudioFormat;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import cn.touchair.audiobox.common.PrettyTextUtils;
+import cn.touchair.audiobox.interfaces.AudioComponents;
 import cn.touchair.audiobox.interfaces.CaptureListener;
 
-public abstract class AbstractRecorder<T> {
+public abstract class AbstractRecorder<T> extends AudioComponents {
     protected final String TAG = getClass().getSimpleName();
 
     protected static final int DEFAULT_CHANNEL_MASK = AudioFormat.CHANNEL_IN_STEREO;
@@ -21,6 +23,7 @@ public abstract class AbstractRecorder<T> {
     protected CaptureListener<T> listener;
     public AbstractRecorder(@NonNull AudioFormat format) {
         this.format = format;
+        showParameters();
     }
 
     public void setCaptureListener(@Nullable CaptureListener<T> listener, @NonNull Class<T> clazz) {
@@ -47,4 +50,14 @@ public abstract class AbstractRecorder<T> {
 
     public abstract void reset();
     public abstract void release();
+
+    private void showParameters() {
+        Object[][] rows = new Object[][] {
+                {"sampleRate", format.getSampleRate()},
+                {"channels", format.getChannelCount()},
+                {"encoding", encodingToString(format.getEncoding())},
+        };
+        String table = PrettyTextUtils.table("RECORDER INFO", rows);
+        System.out.println(table);
+    }
 }
