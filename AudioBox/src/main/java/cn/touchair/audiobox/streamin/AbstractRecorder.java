@@ -5,6 +5,9 @@ import android.media.AudioFormat;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+
 import cn.touchair.audiobox.common.PrettyTextUtils;
 import cn.touchair.audiobox.interfaces.AudioComponents;
 import cn.touchair.audiobox.interfaces.CaptureListener;
@@ -26,22 +29,27 @@ public abstract class AbstractRecorder<T> extends AudioComponents {
         showParameters();
     }
 
-    public void setCaptureListener(@Nullable CaptureListener<T> listener, @NonNull Class<T> clazz) {
-        checkAndSetBufferType(clazz);
+    public void setCaptureListener(@NonNull CaptureListener<T> listener) {
+        checkAndSetBufferType(listener);
         this.listener = listener;
     }
 
-    private void checkAndSetBufferType(@NonNull Class<T> clazz) {
-        String canonicalName = clazz.getCanonicalName();
-        assert canonicalName != null;
-        if (canonicalName.equals(byte[].class.getCanonicalName())) {
+    private void checkAndSetBufferType(@NonNull CaptureListener<T> listener) {
+        Type[] genericInterfaces = listener.getClass().getGenericInterfaces();
+        if (genericInterfaces.length == 0) {
+            throw new RuntimeException("Unable set buffer type.");
+        }
+        ParameterizedType parameterizedType = (ParameterizedType) genericInterfaces[0];
+        Type type = parameterizedType.getActualTypeArguments()[0];
+        final String arrayTypeName = type.toString();
+        if (arrayTypeName.equals(byte[].class.getCanonicalName())) {
             this.bufferType = BUFFER_TYPE_BYTE;
-        } else if (canonicalName.equals(short[].class.getCanonicalName())) {
+        } else if (arrayTypeName.equals(short[].class.getCanonicalName())) {
             this.bufferType = BUFFER_TYPE_SHORT;
-        } else if (canonicalName.equals(float[].class.getCanonicalName())) {
+        } else if (arrayTypeName.equals(float[].class.getCanonicalName())) {
             this.bufferType = BUFFER_TYPE_FLOAT;
         } else {
-            throw new RuntimeException("Type " + canonicalName + " not support!");
+            throw new RuntimeException("Type " + arrayTypeName + " not support!");
         }
     }
 

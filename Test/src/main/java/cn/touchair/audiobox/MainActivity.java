@@ -12,6 +12,8 @@ import android.util.Log;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import cn.touchair.audiobox.common.queue.OverflowCallback;
+import cn.touchair.audiobox.common.queue.OverflowQueue;
 import cn.touchair.audiobox.streamin.AudioRecorder;
 import cn.touchair.audiobox.interfaces.CaptureListener;
 import cn.touchair.audiobox.streamout.RawPlayer;
@@ -22,6 +24,8 @@ public class MainActivity extends AppCompatActivity implements CaptureListener<s
     private static final String[] ALL_PERMISSIONS = new String[] {
             Manifest.permission.RECORD_AUDIO,
     };
+
+    private boolean mPermissionGranted = false;
 //    private AudioPlayer player = new AudioPlayer();
 //    private RawPlayer player = new RawPlayer();
     @SuppressLint("MissingPermission")
@@ -35,7 +39,7 @@ public class MainActivity extends AppCompatActivity implements CaptureListener<s
             public void onCapture(short[] data) {
                 /*handle audio data*/
             }
-        }, short[].class);
+        });
         recorder.start();
     };
 
@@ -44,7 +48,22 @@ public class MainActivity extends AppCompatActivity implements CaptureListener<s
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         launchWhenPermissionGrant();
-        new RawPlayer();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (mPermissionGranted && recorder != null) {
+            recorder.start();
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (recorder != null) {
+            recorder.pause();
+        }
     }
 
     @Override
@@ -81,6 +100,7 @@ public class MainActivity extends AppCompatActivity implements CaptureListener<s
         if (needReq) {
             requestPermissions(requestList.toArray(new String[0]), REQ_CODE_PERMISSION);
         } else {
+            mPermissionGranted = true;
             onLaunchAction.run();
         }
     }
