@@ -57,6 +57,8 @@ player.setAudioSource(new RawPacket.Builder()
 player.play();
 ```
 
+注：默认播放格式为`立体声，48000Hz`
+
 ### 2.3 录音
 
 **v1.0.\***
