@@ -14,24 +14,24 @@ public class RawPacket {
     }
 
     public void fillZero(int minSize) {
-        if (header.length < minSize) {
-            byte[] newHeader = new byte[minSize];
-            Arrays.fill(newHeader, (byte) 0);
-            System.arraycopy(header, 0, newHeader, 0, header.length);
-            header = newHeader;
-        }
+//        if (header.length < minSize) {
+//            byte[] newHeader = new byte[minSize];
+//            Arrays.fill(newHeader, (byte) 0);
+//            System.arraycopy(header, 0, newHeader, 0, header.length);
+//            header = newHeader;
+//        }
         if (body.length < minSize) {
             byte[] newBody = new byte[minSize];
             Arrays.fill(newBody, (byte) 0);
             System.arraycopy(body, 0, newBody, 0, body.length);
             body = newBody;
         }
-        if (tail.length < minSize) {
-            byte[] newTail = new byte[minSize];
-            Arrays.fill(newTail, (byte) 0);
-            System.arraycopy(tail, 0, newTail, 0, tail.length);
-            tail = newTail;
-        }
+//        if (tail.length < minSize) {
+//            byte[] newTail = new byte[minSize];
+//            Arrays.fill(newTail, (byte) 0);
+//            System.arraycopy(tail, 0, newTail, 0, tail.length);
+//            tail = newTail;
+//        }
     }
 
     public static class Builder {
