@@ -14,6 +14,7 @@ import java.util.Arrays;
 
 import cn.touchair.audiobox.common.queue.OverflowCallback;
 import cn.touchair.audiobox.common.queue.OverflowQueue;
+import cn.touchair.audiobox.streamin.AbstractRecorder;
 import cn.touchair.audiobox.streamin.AudioRecorder;
 import cn.touchair.audiobox.interfaces.CaptureListener;
 import cn.touchair.audiobox.streamout.RawPlayer;
@@ -39,7 +40,7 @@ public class MainActivity extends AppCompatActivity implements CaptureListener<s
             public void onCapture(short[] data) {
                 /*handle audio data*/
             }
-        });
+        }, AbstractRecorder.BUFFER_TYPE_SHORT);
         recorder.start();
     };
 
