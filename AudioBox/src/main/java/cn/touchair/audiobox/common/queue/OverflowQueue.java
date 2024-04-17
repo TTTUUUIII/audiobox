@@ -20,8 +20,8 @@ public class OverflowQueue<T> {
     private float[] mQueue2;
     private int[] mQueue3;
     private final OverflowCallback<T> mCallback;
-    public OverflowQueue(@IntRange(from = 1) int size, @NonNull OverflowCallback<T> callback){
-        doInitialize(size, callback);
+    public OverflowQueue(@IntRange(from = 1) int size, byte queueType, @NonNull OverflowCallback<T> callback){
+        doInitialize(size, queueType, callback);
         mCallback = callback;
     }
 
@@ -86,28 +86,23 @@ public class OverflowQueue<T> {
         mPointer = 0;
     }
 
-    private void doInitialize(int size, OverflowCallback<T> callback) {
-        Type[] genericInterfaces = callback.getClass().getGenericInterfaces();
-        if (genericInterfaces.length == 0) {
-            throw new RuntimeException("Unable init queue.");
+    private void doInitialize(int size, byte queueType, OverflowCallback<T> callback) {
+        switch (queueType) {
+            case TYPE_BYTE:
+                mQueue0 = new byte[size];
+                break;
+            case TYPE_SHORT:
+                mQueue1 = new short[size];
+                break;
+            case TYPE_FLOAT:
+                mQueue2 = new float[size];
+                break;
+            case TYPE_INTEGER:
+                mQueue3 = new int[size];
+                break;
+            default:
+                throw new RuntimeException("Unsupported type " + queueType + " queue.");
         }
-        ParameterizedType parameterizedType = (ParameterizedType) genericInterfaces[0];
-        Type type = parameterizedType.getActualTypeArguments()[0];
-        final String arrayTypeName = type.toString();
-        if (arrayTypeName.equals(byte[].class.getCanonicalName())) {
-            mQueue0 = new byte[size];
-            mQueueType = TYPE_BYTE;
-        } else if (arrayTypeName.equals(short[].class.getCanonicalName())) {
-            mQueue1 = new short[size];
-            mQueueType = TYPE_SHORT;
-        } else if (arrayTypeName.equals(float[].class.getCanonicalName())) {
-            mQueue2 = new float[size];
-            mQueueType = TYPE_FLOAT;
-        } else if (arrayTypeName.equals(int[].class.getCanonicalName())) {
-            mQueue3 = new int[size];
-            mQueueType = TYPE_INTEGER;
-        } else {
-            throw new RuntimeException("Unsupported type " + type + " queue.");
-        }
+        mQueueType = queueType;
     }
 }
