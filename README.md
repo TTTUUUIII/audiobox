@@ -1,5 +1,7 @@
 # AudioBox
 
+[![](https://jitpack.io/v/TTTUUUIII/audiobox.svg)](https://jitpack.io/#TTTUUUIII/audiobox)
+
 ## 1. 关于
 
 AudioBox是一个专为Android平台编写的音频库，支持播放和录音，目前包含以下组件：
