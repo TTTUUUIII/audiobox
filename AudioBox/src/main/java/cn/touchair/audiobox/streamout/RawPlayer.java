@@ -72,6 +72,11 @@ public class RawPlayer extends AbstractPlayer<RawPacket> {
         source = null;
     }
 
+    @Override
+    public boolean isPlaying() {
+        return mPrepared && mThread.playing;
+    }
+
     private class PlaybackThread extends Thread {
 
         private final String tag = PlaybackThread.class.getSimpleName();

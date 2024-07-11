@@ -85,6 +85,11 @@ public class AudioPlayer extends AbstractPlayer<File>{
         source = null;
     }
 
+    @Override
+    public boolean isPlaying() {
+        return mPrepared && mThread.playing;
+    }
+
     private class PlaybackThread extends Thread {
 
         private final String tag = getClass().getSimpleName();
@@ -129,9 +134,6 @@ public class AudioPlayer extends AbstractPlayer<File>{
             track.release();
         }
 
-        public boolean isPlaying() {
-            return playing;
-        }
 
         public void play() {
             Prerequisites.check(!exit, "PlaybackThread already exited!");

@@ -92,6 +92,8 @@ public abstract class AbstractPlayer<T> extends AudioComponents {
     public abstract void reset();
     public abstract void release();
 
+    public abstract boolean isPlaying();
+
     public void showParameters() {
         Object[][] rows = new Object[][] {
                 {"sampleRate", format.getSampleRate()},

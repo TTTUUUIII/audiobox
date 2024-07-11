@@ -46,6 +46,8 @@ public abstract class AbstractRecorder<T> extends AudioComponents {
     public abstract void reset();
     public abstract void release();
 
+    public abstract boolean isRecording();
+
     private void showParameters() {
         Object[][] rows = new Object[][] {
                 {"sampleRate", format.getSampleRate()},

@@ -66,6 +66,11 @@ public class AudioRecorder<T> extends AbstractRecorder<T> {
         mReleased = true;
     }
 
+    @Override
+    public boolean isRecording() {
+        return mPrepared && mThread.recording;
+    }
+
     private class RecordThread extends Thread {
         private final String tag = getClass().getSimpleName();
         private final AudioRecord record;
