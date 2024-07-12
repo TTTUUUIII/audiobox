@@ -24,10 +24,10 @@ public abstract class AudioUtils {
 
     public static void equalizer(short[] src, float a) {
         for (int i = 0; i < src.length; i++) {
-            src[i] *= a;
+            src[i] = (short) (src[i] * a);
         }
     }
-    public static byte[] generateHeader(long fileLen, long sampleRate, int channels, int bps) {
+    public static byte[] generateWavHeader(long fileLen, long sampleRate, int channels, int bps) {
         WaveHeader waveHeader = new WaveHeader(WaveHeader.FORMAT_PCM, (short) channels, (short) sampleRate, (short) bps, (int) fileLen);
         byte[] res = new byte[0];
         try (ByteArrayOutputStream fd = new ByteArrayOutputStream()){

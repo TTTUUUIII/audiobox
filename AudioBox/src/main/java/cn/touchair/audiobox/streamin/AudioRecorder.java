@@ -9,6 +9,8 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresPermission;
 
+import cn.touchair.audiobox.annotations.BufferType;
+import cn.touchair.audiobox.common.LoopThread;
 import cn.touchair.audiobox.common.Prerequisites;
 
 public class AudioRecorder<T> extends AbstractRecorder<T> {
@@ -53,11 +55,11 @@ public class AudioRecorder<T> extends AbstractRecorder<T> {
     @Override
     public void reset() {
         Prerequisites.check(!mReleased, "Recorder already released!");
-        if (mPrepared) {
+        if (mThread != null) {
             mThread.exit();
             mThread = null;
-            mPrepared = false;
         }
+        mPrepared = false;
     }
 
     @Override
@@ -71,10 +73,8 @@ public class AudioRecorder<T> extends AbstractRecorder<T> {
         return mPrepared && mThread.recording;
     }
 
-    private class RecordThread extends Thread {
-        private final String tag = getClass().getSimpleName();
+    private class RecordThread extends LoopThread {
         private final AudioRecord record;
-        private boolean exit = false;
         private boolean recording = false;
         private short[] buffer1;
         private byte[] buffer2;
@@ -89,43 +89,19 @@ public class AudioRecorder<T> extends AbstractRecorder<T> {
                     .setBufferSizeInBytes(minBufferSizeInBytes)
                     .build();
             switch (bufferType) {
-                case BUFFER_TYPE_SHORT:
+                case BufferType.SHORT:
+                case BufferType.INTEGER:
                     buffer1 = new short[minBufferSizeInBytes / Short.BYTES];
                     break;
-                case BUFFER_TYPE_BYTE:
+                case BufferType.BYTE:
                     buffer2 = new byte[minBufferSizeInBytes];
                     break;
-                case BUFFER_TYPE_FLOAT:
+                case BufferType.FLOAT:
                     buffer3 = new float[minBufferSizeInBytes / Float.BYTES];
                     break;
                 default:
                     throw new RuntimeException("Invalid buffer type " + bufferType);
             }
-        }
-
-        @Override
-        public void run() {
-            super.run();
-            Log.i(tag, tag + " running");
-            while (!exit) {
-                if (recording) {
-                    if (bufferType == BUFFER_TYPE_SHORT) {
-                        capture1();
-                    } else if (bufferType == BUFFER_TYPE_BYTE) {
-                        capture2();
-                    } else if (bufferType == BUFFER_TYPE_FLOAT){
-                        capture3();
-                    } else {
-                        Log.w(TAG, "Invalid buffer type " + bufferType);
-                    }
-                }
-            }
-            if (recording) {
-                recording = false;
-                record.release();
-            }
-            record.release();
-            Log.i(tag, tag + " exit");
         }
 
         private void capture1() {
@@ -156,22 +132,39 @@ public class AudioRecorder<T> extends AbstractRecorder<T> {
         }
 
         void startRecorder() {
-            Prerequisites.check(!exit, "RecordThread already exited!");
+            Prerequisites.check(isActive(), "RecordThread already exited!");
             if (recording) return;
             record.startRecording();
             recording = true;
         }
 
         void stopRecorder() {
-            Prerequisites.check(!exit, "RecordThread already exited!");
+            Prerequisites.check(isActive(), "RecordThread already exited!");
             if (recording) {
                 recording = false;
                 record.stop();
             }
         }
 
-        void exit() {
-            exit = true;
+        @Override
+        public void onLoop() {
+            if (recording) {
+                if (bufferType == BufferType.SHORT || bufferType == BufferType.INTEGER) {
+                    capture1();
+                } else if (bufferType == BufferType.BYTE) {
+                    capture2();
+                } else if (bufferType == BufferType.FLOAT){
+                    capture3();
+                } else {
+                    Log.w(TAG, "Invalid buffer type " + bufferType);
+                }
+            }
+        }
+
+        @Override
+        public void onExitLoop() {
+            record.release();
+            recording = false;
         }
     }
 }

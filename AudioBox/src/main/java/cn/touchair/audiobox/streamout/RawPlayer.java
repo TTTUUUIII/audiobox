@@ -7,6 +7,7 @@ import android.media.AudioTrack;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import cn.touchair.audiobox.common.LoopThread;
 import cn.touchair.audiobox.common.Prerequisites;
 import cn.touchair.audiobox.common.RawPacket;
 
@@ -77,12 +78,9 @@ public class RawPlayer extends AbstractPlayer<RawPacket> {
         return mPrepared && mThread.playing;
     }
 
-    private class PlaybackThread extends Thread {
-
-        private final String tag = PlaybackThread.class.getSimpleName();
+    private class PlaybackThread extends LoopThread {
         private final AudioTrack track;
         private volatile boolean playing = false;
-        private volatile boolean exit = false;
 
         private PlaybackThread() {
             track = new AudioTrack.Builder()
@@ -93,35 +91,12 @@ public class RawPlayer extends AbstractPlayer<RawPacket> {
                     .build();
         }
 
-        @Override
-        public void run() {
-            boolean flag = true;
-            while (!exit) {
-                if (playing) {
-                    if (flag) {
-                        track.write(source.header, 0, source.header.length, AudioTrack.WRITE_BLOCKING);
-                        flag = false;
-                    }
-                    track.write(source.body, 0, source.body.length, AudioTrack.WRITE_BLOCKING);
-                    if (!loop) {
-                        track.write(source.tail, 0, source.tail.length, AudioTrack.WRITE_BLOCKING);
-                        handler.sendEmptyMessage(MSG_WHAT_PAUSE);
-                    }
-                } else {
-                    flag = true;
-                }
-            }
-            track.write(source.tail, 0, source.tail.length, AudioTrack.WRITE_BLOCKING);
-            track.stop();
-            track.release();
-        }
-
         public boolean isPlaying() {
             return playing;
         }
 
         public void play() {
-            Prerequisites.check(!exit, "PlaybackThread already exited!");
+            Prerequisites.check(isActive(), "PlaybackThread already exited!");
             if (!playing) {
                 track.play();
                 playing = true;
@@ -135,8 +110,31 @@ public class RawPlayer extends AbstractPlayer<RawPacket> {
             }
         }
 
-        public void exit() {
-            exit = true;
+        private boolean flag = true;
+        @Override
+        public void onLoop() {
+            if (playing) {
+                if (flag) {
+                    track.write(source.header, 0, source.header.length, AudioTrack.WRITE_BLOCKING);
+                    flag = false;
+                }
+                track.write(source.body, 0, source.body.length, AudioTrack.WRITE_BLOCKING);
+                if (!loop) {
+                    track.write(source.tail, 0, source.tail.length, AudioTrack.WRITE_BLOCKING);
+                    handler.sendEmptyMessage(MSG_WHAT_PAUSE);
+                }
+            } else {
+                flag = true;
+            }
+        }
+
+        @Override
+        public void onExitLoop() {
+            super.onExitLoop();
+            if (playing) {
+                track.write(source.tail, 0, source.tail.length, AudioTrack.WRITE_BLOCKING);
+            }
+            track.release();
         }
     }
 }

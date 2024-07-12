@@ -1,11 +1,12 @@
 plugins {
     id("com.android.library")
     id("maven-publish")
+    id("org.jetbrains.kotlin.android")
 }
 
 android {
     namespace = "cn.touchair.audiobox"
-    compileSdk = 33
+    compileSdk = 34
 
     defaultConfig {
         minSdk = 24
@@ -35,10 +36,15 @@ android {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
     }
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
 }
 
+//noinspection GradleDependency
 dependencies {
 
+    implementation("androidx.core:core-ktx:1.13.1")
     compileOnly("androidx.appcompat:appcompat:1.6.1")
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")

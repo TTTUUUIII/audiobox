@@ -4,11 +4,12 @@ plugins {
 
 android {
     namespace = "cn.touchair.audiobox"
-    compileSdk = 33
+    compileSdk = 34
 
     defaultConfig {
         applicationId = "cn.touchair.audiobox"
         minSdk = 24
+        //noinspection OldTargetApi
         targetSdk = 33
         versionCode = 1
         versionName = "1.0"
@@ -25,12 +26,16 @@ android {
             )
         }
     }
+    buildFeatures {
+        viewBinding = true
+    }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
     }
 }
 
+//noinspection GradleDependency
 dependencies {
 
     implementation(project(path=":AudioBox"))

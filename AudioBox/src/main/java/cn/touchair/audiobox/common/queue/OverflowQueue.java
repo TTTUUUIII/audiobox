@@ -3,18 +3,12 @@ package cn.touchair.audiobox.common.queue;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
+import cn.touchair.audiobox.annotations.BufferType;
 
 public class OverflowQueue<T> {
 
-    private static final byte TYPE_BYTE = 1;
-    private static final byte TYPE_SHORT = 1 << 1;
-    private static final byte TYPE_FLOAT = 1 << 2;
-    private static final byte TYPE_INTEGER = 1 << 3;
-
     private int mPointer = 0;
-    private byte mQueueType;
+    private @BufferType int mQueueType;
     private byte[] mQueue0;
     private short[] mQueue1;
     private float[] mQueue2;
@@ -27,16 +21,16 @@ public class OverflowQueue<T> {
 
     public void enqueue(T src, int offset, int size) {
         switch (mQueueType) {
-            case TYPE_BYTE:
+            case BufferType.BYTE:
                 enqueue0((byte[]) src, offset, size);
                 break;
-            case TYPE_SHORT:
+            case BufferType.SHORT:
                 enqueue1((short[]) src, offset, size);
                 break;
-            case TYPE_FLOAT:
+            case BufferType.FLOAT:
                 enqueue2((float[]) src, offset, size);
                 break;
-            case TYPE_INTEGER:
+            case BufferType.INTEGER:
                 enqueue3((int[]) src, offset, size);
                 break;
             default:
@@ -86,18 +80,18 @@ public class OverflowQueue<T> {
         mPointer = 0;
     }
 
-    private void doInitialize(int size, byte queueType, OverflowCallback<T> callback) {
+    private void doInitialize(int size, @BufferType int queueType, OverflowCallback<T> callback) {
         switch (queueType) {
-            case TYPE_BYTE:
+            case BufferType.BYTE:
                 mQueue0 = new byte[size];
                 break;
-            case TYPE_SHORT:
+            case BufferType.SHORT:
                 mQueue1 = new short[size];
                 break;
-            case TYPE_FLOAT:
+            case BufferType.FLOAT:
                 mQueue2 = new float[size];
                 break;
-            case TYPE_INTEGER:
+            case BufferType.INTEGER:
                 mQueue3 = new int[size];
                 break;
             default:

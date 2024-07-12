@@ -8,10 +8,12 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.Objects;
 
+import cn.touchair.audiobox.common.LoopThread;
 import cn.touchair.audiobox.common.Prerequisites;
 
 public class AudioPlayer extends AbstractPlayer<File>{
@@ -71,11 +73,11 @@ public class AudioPlayer extends AbstractPlayer<File>{
     @Override
     public void reset() {
         Prerequisites.check(!mReleased, "Player already released!");
-        if (mPrepared) {
+        if (mThread != null) {
             mThread.exit();
             mThread = null;
-            mPrepared = false;
         }
+        mPrepared = false;
     }
 
     @Override
@@ -90,12 +92,12 @@ public class AudioPlayer extends AbstractPlayer<File>{
         return mPrepared && mThread.playing;
     }
 
-    private class PlaybackThread extends Thread {
+    private class PlaybackThread extends LoopThread {
 
-        private final String tag = getClass().getSimpleName();
         private final AudioTrack track;
         private volatile boolean playing = false;
-        private volatile boolean exit = false;
+
+        private RandomAccessFile fd;
 
         private PlaybackThread() {
             int minBufferSize = AudioTrack.getMinBufferSize(
@@ -109,34 +111,8 @@ public class AudioPlayer extends AbstractPlayer<File>{
                     .build();
         }
 
-        @Override
-        public void run() {
-            try (RandomAccessFile fd = new RandomAccessFile(source, "r")){
-                fd.seek(mOffset);
-                byte[] buffer = new byte[4096];
-                while (!exit) {
-                    if (playing) {
-                        int readNumInBytes = fd.read(buffer);
-                        if (readNumInBytes > 0) {
-                            track.write(buffer, 0, readNumInBytes);
-                        } else if (readNumInBytes == -1) {
-                            fd.seek(mOffset);
-                            if (!loop) {
-                                handler.sendEmptyMessage(MSG_WHAT_PAUSE);
-                            }
-                        }
-                    }
-                }
-            } catch (IOException ioException) {
-                ioException.printStackTrace(System.err);
-            }
-            track.stop();
-            track.release();
-        }
-
 
         public void play() {
-            Prerequisites.check(!exit, "PlaybackThread already exited!");
             if (!playing) {
                 track.play();
                 playing = true;
@@ -150,8 +126,39 @@ public class AudioPlayer extends AbstractPlayer<File>{
             }
         }
 
-        public void exit() {
-            exit = true;
+        @Override
+        public void onEnterLoop() {
+            try {
+                fd = new RandomAccessFile(source, "r");
+                fd.seek(mOffset);
+            } catch (IOException e) {
+                e.printStackTrace(System.err);
+            }
+        }
+
+        @Override
+        public void onLoop() {
+            byte[] buffer = new byte[4096];
+            try {
+                if (playing) {
+                    int readNumInBytes = fd.read(buffer);
+                    if (readNumInBytes > 0) {
+                        track.write(buffer, 0, readNumInBytes);
+                    } else if (readNumInBytes == -1) {
+                        fd.seek(mOffset);
+                        if (!loop) {
+                            handler.sendEmptyMessage(MSG_WHAT_PAUSE);
+                        }
+                    }
+                }
+            } catch (IOException e) {
+                e.printStackTrace(System.err);
+            }
+        }
+
+        @Override
+        public void onExitLoop() {
+            track.release();
         }
     }
 }
