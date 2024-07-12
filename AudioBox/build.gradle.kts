@@ -57,7 +57,7 @@ afterEvaluate {
             register("defaultAar", MavenPublication::class.java) {
                 from(components["release"])
                 groupId = "com.github.TTTUUUIII"
-                version = "1.3.1"
+                version = "1.4.0-alpha"
             }
         }
     }
