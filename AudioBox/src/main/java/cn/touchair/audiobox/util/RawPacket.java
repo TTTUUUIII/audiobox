@@ -1,4 +1,4 @@
-package cn.touchair.audiobox.common;
+package cn.touchair.audiobox.util;
 
 import java.util.Arrays;
 
@@ -45,7 +45,7 @@ public class RawPacket {
         }
 
         public Builder setHeader(short[] header) {
-            return setHeader(AudioConvert.asByteArray(header));
+            return setHeader(AudioUtils.asByteArray(header));
         }
 
         public Builder setBody(byte[] body) {
@@ -54,7 +54,7 @@ public class RawPacket {
         }
 
         public Builder setBody(short[] body) {
-            return setBody(AudioConvert.asByteArray(body));
+            return setBody(AudioUtils.asByteArray(body));
         }
 
         public Builder setTail(byte[] tail) {
@@ -63,7 +63,7 @@ public class RawPacket {
         }
 
         public Builder setTail(short[] tail) {
-            return setTail(AudioConvert.asByteArray(tail));
+            return setTail(AudioUtils.asByteArray(tail));
         }
 
         public RawPacket build() {

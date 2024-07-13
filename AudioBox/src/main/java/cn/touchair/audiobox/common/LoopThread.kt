@@ -1,15 +1,20 @@
 package cn.touchair.audiobox.common
 
-abstract class LoopThread(tag: String = "AudioBox#LoopThread#${nextUniqueId()}"): Thread(tag) {
+import cn.touchair.audiobox.util.BoxLogger
+
+abstract class LoopThread(
+    private val tag: String = "AudioBox#LoopThread#${nextUniqueId()}"
+): Thread(tag) {
     override fun run() {
         super.run()
         onEnterLoop()
         while(isActive()) {
-            onLoop()
-            try {
-                sleep(1)
-            } catch (e: InterruptedException) {
-                break
+            if(!onLoop()) {
+                try {
+                    sleep(30)
+                } catch (e: InterruptedException) {
+                    break
+                }
             }
         }
         onExitLoop()
@@ -21,9 +26,13 @@ abstract class LoopThread(tag: String = "AudioBox#LoopThread#${nextUniqueId()}")
 
     fun isActive(): Boolean = !interrupted()
 
-    open fun onEnterLoop() {}
-    abstract fun onLoop()
-    open fun onExitLoop() {}
+    open fun onEnterLoop() {
+        BoxLogger.info("onEnterLoop@$tag")
+    }
+    abstract fun onLoop(): Boolean
+    open fun onExitLoop() {
+        BoxLogger.info("onExitLoop@$tag")
+    }
 
     companion object {
         private var uniqueId = 0

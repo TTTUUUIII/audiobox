@@ -1,4 +1,9 @@
 <resources>
     <string name="app_name">AudioBox</string>
-    <string name="record">Record</string>
+    <string name="record_audio">Record Audio</string>
+    <string name="play_audio">Play Audio</string>
+    <string name="permission_denied">Permission Denied</string>
+    <string name="audio_file_not_exists">Audio file not found, record a audio first!</string>
+    <string name="stop_recorder">Stop recorder first!</string>
+    <string name="stop_player">Stop player first!</string>
 </resources>

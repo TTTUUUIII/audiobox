@@ -5,9 +5,8 @@ import android.media.AudioFormat;
 import androidx.annotation.NonNull;
 
 import cn.touchair.audiobox.annotations.BufferType;
-import cn.touchair.audiobox.common.PrettyTextUtils;
+import cn.touchair.audiobox.util.PrettyTextUtils;
 import cn.touchair.audiobox.interfaces.AudioComponents;
-import cn.touchair.audiobox.interfaces.CaptureListener;
 
 public abstract class AbstractRecorder<T> extends AudioComponents {
     protected final String TAG = getClass().getSimpleName();
@@ -16,18 +15,18 @@ public abstract class AbstractRecorder<T> extends AudioComponents {
     protected static final int DEFAULT_SAMPLE_RATE = 48000;
     protected AudioFormat format;
     protected @BufferType int bufferType;
-    protected CaptureListener<T> listener;
+    protected Callback<T> listener;
     public AbstractRecorder(@NonNull AudioFormat format) {
         this.format = format;
         showParameters();
     }
 
-    public void setCaptureListener(@NonNull CaptureListener<T> listener, @BufferType int captureType) {
+    public void setCaptureListener(@NonNull Callback<T> listener, @BufferType int captureType) {
         bufferType = checkBufferType(captureType);
         this.listener = listener;
     }
 
-    public void setCaptureListener(@NonNull CaptureListener<T> listener) {
+    public void setCaptureListener(@NonNull Callback<T> listener) {
         setCaptureListener(listener, BufferType.SHORT);
     }
 
@@ -59,5 +58,9 @@ public abstract class AbstractRecorder<T> extends AudioComponents {
         };
         String table = PrettyTextUtils.table("RECORDER INFO", rows);
         System.out.println(table);
+    }
+
+    public interface Callback<T> {
+        void onAudioBuffer(T data);
     }
 }

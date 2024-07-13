@@ -11,7 +11,7 @@ import androidx.annotation.Nullable;
 
 import java.util.Objects;
 
-import cn.touchair.audiobox.common.PrettyTextUtils;
+import cn.touchair.audiobox.util.PrettyTextUtils;
 import cn.touchair.audiobox.interfaces.AudioComponents;
 
 public abstract class AbstractPlayer<T> extends AudioComponents {
@@ -26,6 +26,7 @@ public abstract class AbstractPlayer<T> extends AudioComponents {
     protected AudioAttributes attributes;
     protected AudioFormat format;
     protected boolean loop = false;
+    protected PlayerEventListener listener;
 
     protected T source;
 
@@ -86,6 +87,11 @@ public abstract class AbstractPlayer<T> extends AudioComponents {
         }
         this.source = source;
     }
+
+    public void registerPlayerListener(PlayerEventListener listener) {
+        this.listener = listener;
+    }
+
     public abstract void play();
     public abstract void pause();
 
@@ -103,5 +109,10 @@ public abstract class AbstractPlayer<T> extends AudioComponents {
         };
         String table = PrettyTextUtils.table("PLAYER INFO", rows);
         System.out.println(table);
+    }
+
+    public interface PlayerEventListener {
+        void onPlay();
+        void onPause();
     }
 }

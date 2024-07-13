@@ -16,10 +16,11 @@ import androidx.annotation.Nullable;
 
 import java.util.ArrayDeque;
 
+import cn.touchair.audiobox.common.AudioFrame;
+
 public class AudioWaveView extends View {
 
     private static final int MSG_DRAW_SNAPSHOT = 1;
-    private final byte[] mLock = new byte[0];
     private float mW;
     private float mH;
     private final Handler mHandler = new Handler(Looper.getMainLooper()) {
@@ -31,10 +32,10 @@ public class AudioWaveView extends View {
             }
         }
     };
-    private int mLimit = 1000;
-    private final int mHandleBlockSize = 100;
+    private final int mLimit = 1000;
     private final Paint mPaint = new Paint();
-    private final ArrayDeque<Float> mDataDeque = new ArrayDeque<>();
+    private final ArrayDeque<Float> mDataDeque0 = new ArrayDeque<>();
+    private final ArrayDeque<Float> mDataDeque1 = new ArrayDeque<>();
     public AudioWaveView(Context context) {
         super(context, null);
     }
@@ -42,7 +43,8 @@ public class AudioWaveView extends View {
     public AudioWaveView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
         for (int i = 0; i < mLimit; ++i) {
-            mDataDeque.add(0F);
+            mDataDeque0.add(0F);
+            mDataDeque1.add(0F);
         }
     }
 
@@ -53,10 +55,16 @@ public class AudioWaveView extends View {
         mH = getMeasuredHeight();
     }
 
-    public void updateData(short[] data) {
+    public void updateAudioData(AudioFrame<short[]> frame) {
+        if (frame.stream0 != null) updateStream0(frame.stream0);
+        if (frame.stream1 != null) updateStream1(frame.stream1);
+    }
+
+    private void updateStream0(short[] data) {
         float[] normalized = normalize(data);
+        int mHandleBlockSize = 100;
         if (normalized.length < mHandleBlockSize) {
-            push(normalized, 0, normalized.length);
+            push(normalized, 0, normalized.length, true);
             mHandler.sendEmptyMessage(MSG_DRAW_SNAPSHOT);
         } else {
             int offset = 0;
@@ -68,28 +76,54 @@ public class AudioWaveView extends View {
                 } else {
                     length = normalized.length - offset;
                 }
-                push(normalized, offset, length);
+                push(normalized, offset, length, true);
                 offset += length;
                 mHandler.sendEmptyMessage(MSG_DRAW_SNAPSHOT);
             } while (--numberOfBlocks != 0);
         }
     }
 
-    public void clear() {
-        synchronized (mLock) {
-            mDataDeque.clear();
-            for (int i = 0; i < mLimit; ++i) {
-                mDataDeque.add(0F);
-            }
+    private void updateStream1(short[] data) {
+        float[] normalized = normalize(data);
+        int mHandleBlockSize = 100;
+        if (normalized.length < mHandleBlockSize) {
+            push(normalized, 0, normalized.length, false);
             mHandler.sendEmptyMessage(MSG_DRAW_SNAPSHOT);
+        } else {
+            int offset = 0;
+            int length;
+            int numberOfBlocks = (int) Math.ceil((double) normalized.length / mHandleBlockSize);
+            do {
+                if (offset + mHandleBlockSize < normalized.length) {
+                    length = mHandleBlockSize;
+                } else {
+                    length = normalized.length - offset;
+                }
+                push(normalized, offset, length, false);
+                offset += length;
+                mHandler.sendEmptyMessage(MSG_DRAW_SNAPSHOT);
+            } while (--numberOfBlocks != 0);
         }
     }
 
-    private void push(float[] src, int offset, int size) {
-        synchronized (mLock) {
-            for (int i = offset; i < offset + size; ++i) {
-                mDataDeque.add(src[i]);
-                while (mDataDeque.size() > mLimit) mDataDeque.removeFirst();
+    public synchronized void clear() {
+        mDataDeque0.clear();
+        mDataDeque1.clear();
+        for (int i = 0; i < mLimit; ++i) {
+            mDataDeque0.add(0F);
+            mDataDeque1.add(0F);
+        }
+        mHandler.sendEmptyMessage(MSG_DRAW_SNAPSHOT);
+    }
+
+    private synchronized void push(float[] src, int offset, int size, boolean forStream0) {
+        for (int i = offset; i < offset + size; ++i) {
+            if (forStream0) {
+                mDataDeque0.add(src[i]);
+                while (mDataDeque0.size() > mLimit) mDataDeque0.removeFirst();
+            } else  {
+                mDataDeque1.add(src[i]);
+                while (mDataDeque1.size() > mLimit) mDataDeque1.removeFirst();
             }
         }
     }
@@ -102,31 +136,69 @@ public class AudioWaveView extends View {
         return normalized;
     }
 
-    private final RectF mRectF = new RectF();
+    private static final int MARGIN_PX = 8;
+    private final RectF RECTF = new RectF();
     @Override
-    protected void onDraw(@NonNull Canvas canvas) {
+    protected synchronized void onDraw(@NonNull Canvas canvas) {
         super.onDraw(canvas);
-        synchronized (mLock) {
-            mPaint.setColor(Color.BLUE);
-            float axis = mH / 2;
-            int length = mDataDeque.size();
-            float xStep = mW / length;
+        drawArea(canvas);
+        /*For stream#0*/
+        mPaint.setColor(Color.BLUE);
+        float axis = mH / 4 - (float) MARGIN_PX / 2;
+        int length = mDataDeque0.size();
+        float xStep = mW / length;
 
-            int index = 0;
-            float max = 0F;
-            for (float it: mDataDeque) {
-                mRectF.left = index * xStep;
-                mRectF.top = axis - it * mH / 2;
-                mRectF.right = mRectF.left + xStep;
-                mRectF.bottom = axis;
-                canvas.drawRect(mRectF, mPaint);
-                index++;
-                if (max < it) max = it;
-            }
-            if (max == 0F) {
-                mPaint.setColor(Color.BLACK);
-                canvas.drawLine(0, axis, mW, axis, mPaint);
-            }
+        int index = 0;
+        float max = 0F;
+        for (float it: mDataDeque0) {
+            RECTF.left = index * xStep;
+            RECTF.top = axis * (1 - it);
+            RECTF.right = RECTF.left + xStep;
+            RECTF.bottom = axis;
+            canvas.drawRect(RECTF, mPaint);
+            index++;
+            if (max < it) max = it;
         }
+        if (max == 0F) {
+            mPaint.setColor(Color.BLACK);
+            canvas.drawLine(0, axis, mW, axis, mPaint);
+        }
+
+        /*For stream#1*/
+        mPaint.setColor(Color.RED);
+        axis = mH - mH / 4 + (float) MARGIN_PX / 2;
+        length = mDataDeque1.size();
+        xStep = mW / length;
+
+        index = 0;
+        max = 0F;
+        for (float it: mDataDeque1) {
+            RECTF.left = index * xStep;
+            RECTF.top = axis - it * mH / 4;
+            RECTF.right = RECTF.left + xStep;
+            RECTF.bottom = axis;
+            canvas.drawRect(RECTF, mPaint);
+            index++;
+            if (max < it) max = it;
+        }
+        if (max == 0F) {
+            mPaint.setColor(Color.BLACK);
+            canvas.drawLine(0, axis, mW, axis, mPaint);
+        }
+    }
+
+    private void drawArea(Canvas canvas) {
+        int color = mPaint.getColor();
+        mPaint.setARGB(0x33, 0x00, 0x00, 0x00);
+        RECTF.top = 0;
+        RECTF.left = 0;
+        RECTF.right = mW;
+        RECTF.bottom = mH / 2 - MARGIN_PX;
+        canvas.drawRect(RECTF, mPaint);
+
+        RECTF.top = mH / 2 + MARGIN_PX;
+        RECTF.bottom = mH;
+        canvas.drawRect(RECTF, mPaint);
+        mPaint.setColor(color);
     }
 }

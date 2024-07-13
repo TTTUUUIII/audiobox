@@ -116,6 +116,9 @@ public class AudioPlayer extends AbstractPlayer<File>{
             if (!playing) {
                 track.play();
                 playing = true;
+                if (listener != null) {
+                    listener.onPlay();
+                }
             }
         }
 
@@ -123,6 +126,9 @@ public class AudioPlayer extends AbstractPlayer<File>{
             if (playing) {
                 playing = false;
                 track.pause();
+                if (listener != null) {
+                    listener.onPause();
+                }
             }
         }
 
@@ -137,7 +143,7 @@ public class AudioPlayer extends AbstractPlayer<File>{
         }
 
         @Override
-        public void onLoop() {
+        public boolean onLoop() {
             byte[] buffer = new byte[4096];
             try {
                 if (playing) {
@@ -150,10 +156,12 @@ public class AudioPlayer extends AbstractPlayer<File>{
                             handler.sendEmptyMessage(MSG_WHAT_PAUSE);
                         }
                     }
+                    return true;
                 }
             } catch (IOException e) {
                 e.printStackTrace(System.err);
             }
+            return false;
         }
 
         @Override

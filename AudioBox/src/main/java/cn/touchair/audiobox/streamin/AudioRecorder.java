@@ -109,7 +109,7 @@ public class AudioRecorder<T> extends AbstractRecorder<T> {
             if (readNum > 0 && listener != null) {
                 final short[] dest = new short[readNum];
                 System.arraycopy(buffer1, 0, dest, 0, dest.length);
-                listener.onCapture((T)dest);
+                listener.onAudioBuffer((T)dest);
             }
         }
 
@@ -118,7 +118,7 @@ public class AudioRecorder<T> extends AbstractRecorder<T> {
             if (readNum > 0 && listener != null) {
                 final byte[] dest = new byte[readNum];
                 System.arraycopy(buffer2, 0, dest, 0, dest.length);
-                listener.onCapture((T) dest);
+                listener.onAudioBuffer((T) dest);
             }
         }
 
@@ -127,7 +127,7 @@ public class AudioRecorder<T> extends AbstractRecorder<T> {
             if (readNum > 0 && listener != null) {
                 final float[] dest = new float[readNum];
                 System.arraycopy(buffer3, 0, dest, 0, dest.length);
-                listener.onCapture((T) dest);
+                listener.onAudioBuffer((T) dest);
             }
         }
 
@@ -147,7 +147,7 @@ public class AudioRecorder<T> extends AbstractRecorder<T> {
         }
 
         @Override
-        public void onLoop() {
+        public boolean onLoop() {
             if (recording) {
                 if (bufferType == BufferType.SHORT || bufferType == BufferType.INTEGER) {
                     capture1();
@@ -156,13 +156,21 @@ public class AudioRecorder<T> extends AbstractRecorder<T> {
                 } else if (bufferType == BufferType.FLOAT){
                     capture3();
                 } else {
-                    Log.w(TAG, "Invalid buffer type " + bufferType);
+                    throw new RuntimeException("Invalid buffer type " + bufferType);
                 }
+                try {
+                    sleep(10);
+                } catch (InterruptedException e) {
+                    e.printStackTrace(System.err);
+                }
+                return true;
             }
+            return false;
         }
 
         @Override
         public void onExitLoop() {
+            super.onExitLoop();
             record.release();
             recording = false;
         }

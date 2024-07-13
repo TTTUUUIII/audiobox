@@ -9,7 +9,7 @@ import androidx.annotation.Nullable;
 
 import cn.touchair.audiobox.common.LoopThread;
 import cn.touchair.audiobox.common.Prerequisites;
-import cn.touchair.audiobox.common.RawPacket;
+import cn.touchair.audiobox.util.RawPacket;
 
 public class RawPlayer extends AbstractPlayer<RawPacket> {
 
@@ -100,6 +100,9 @@ public class RawPlayer extends AbstractPlayer<RawPacket> {
             if (!playing) {
                 track.play();
                 playing = true;
+                if (listener != null) {
+                    listener.onPlay();
+                }
             }
         }
 
@@ -107,12 +110,15 @@ public class RawPlayer extends AbstractPlayer<RawPacket> {
             if (playing) {
                 playing = false;
                 track.pause();
+                if (listener != null) {
+                    listener.onPause();
+                }
             }
         }
 
         private boolean flag = true;
         @Override
-        public void onLoop() {
+        public boolean onLoop() {
             if (playing) {
                 if (flag) {
                     track.write(source.header, 0, source.header.length, AudioTrack.WRITE_BLOCKING);
@@ -123,9 +129,11 @@ public class RawPlayer extends AbstractPlayer<RawPacket> {
                     track.write(source.tail, 0, source.tail.length, AudioTrack.WRITE_BLOCKING);
                     handler.sendEmptyMessage(MSG_WHAT_PAUSE);
                 }
+                return true;
             } else {
                 flag = true;
             }
+            return false;
         }
 
         @Override

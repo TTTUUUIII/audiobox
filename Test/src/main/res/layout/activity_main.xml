@@ -9,16 +9,25 @@
     <cn.touchair.audiobox.view.AudioWaveView
         android:id="@+id/audio_wave_view"
         android:layout_width="match_parent"
-        android:background="@color/black30"
-        android:layout_above="@+id/button_record"
+        android:layout_above="@+id/button_record_audio"
         android:layout_marginBottom="@dimen/padding_small"
-        android:layout_height="88dp" />
+        android:layout_height="240dp" />
     <com.google.android.material.button.MaterialButton
-        android:id="@+id/button_record"
+        android:id="@+id/button_play_audio"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        app:icon="@drawable/ic_play_arrow"
+        app:iconGravity="textEnd"
+        android:layout_toStartOf="@id/button_record_audio"
+        android:text="@string/play_audio" />
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/button_record_audio"
         app:icon="@drawable/ic_mic"
         app:iconGravity="textEnd"
+        android:layout_marginStart="@dimen/padding_small"
         android:layout_gravity="center_vertical"
-        android:text="@string/record"
+        android:text="@string/record_audio"
         android:layout_alignParentBottom="true"
         android:layout_alignParentEnd="true"
         android:layout_width="wrap_content"
