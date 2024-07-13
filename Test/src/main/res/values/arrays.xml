@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="channels">
+        <item>1</item>
+        <item>2</item>
+    </string-array>
+    <string-array name="sample_rates">
+        <item>8000</item>
+        <item>44100</item>
+        <item>48000</item>
+        <item>96000</item>
+    </string-array>
+</resources>

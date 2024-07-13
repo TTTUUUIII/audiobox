@@ -11,6 +11,7 @@ import androidx.annotation.Nullable;
 
 import java.util.Objects;
 
+import cn.touchair.audiobox.util.BoxLogger;
 import cn.touchair.audiobox.util.PrettyTextUtils;
 import cn.touchair.audiobox.interfaces.AudioComponents;
 
@@ -88,7 +89,7 @@ public abstract class AbstractPlayer<T> extends AudioComponents {
         this.source = source;
     }
 
-    public void registerPlayerListener(PlayerEventListener listener) {
+    public void registerStateListener(PlayerEventListener listener) {
         this.listener = listener;
     }
 
@@ -107,8 +108,8 @@ public abstract class AbstractPlayer<T> extends AudioComponents {
                 {"encoding", format.getEncoding()},
                 {"usage", usgaeToString(attributes.getUsage())},
         };
-        String table = PrettyTextUtils.table("PLAYER INFO", rows);
-        System.out.println(table);
+        String metadata = PrettyTextUtils.table("PLAYER INFO", rows);
+        BoxLogger.info(metadata);
     }
 
     public interface PlayerEventListener {

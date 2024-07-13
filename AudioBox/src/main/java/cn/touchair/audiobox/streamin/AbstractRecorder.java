@@ -1,21 +1,38 @@
 package cn.touchair.audiobox.streamin;
 
 import android.media.AudioFormat;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 
 import androidx.annotation.NonNull;
 
 import cn.touchair.audiobox.annotations.BufferType;
+import cn.touchair.audiobox.util.BoxLogger;
 import cn.touchair.audiobox.util.PrettyTextUtils;
 import cn.touchair.audiobox.interfaces.AudioComponents;
 
 public abstract class AbstractRecorder<T> extends AudioComponents {
-    protected final String TAG = getClass().getSimpleName();
+    protected static final int MSG_NEW_AUDIO_BUFFER = 1;
     protected static final int DEFAULT_CHANNEL_MASK = AudioFormat.CHANNEL_IN_STEREO;
     protected static final int DEFAULT_ENCODING = AudioFormat.ENCODING_PCM_16BIT;
     protected static final int DEFAULT_SAMPLE_RATE = 48000;
-    protected AudioFormat format;
+    protected final AudioFormat format;
     protected @BufferType int bufferType;
-    protected Callback<T> listener;
+    private Callback<T> callback;
+    protected RecorderEventListener listener;
+    protected Handler handler = new Handler(Looper.getMainLooper()) {
+        @Override
+        public void handleMessage(@NonNull Message msg) {
+            super.handleMessage(msg);
+            if (msg.what == MSG_NEW_AUDIO_BUFFER) {
+                try {
+                    callback.onAudioBuffer((T) msg.obj);
+                } catch (Exception ignored) {
+                }
+            }
+        }
+    };
     public AbstractRecorder(@NonNull AudioFormat format) {
         this.format = format;
         showParameters();
@@ -23,7 +40,7 @@ public abstract class AbstractRecorder<T> extends AudioComponents {
 
     public void setCaptureListener(@NonNull Callback<T> listener, @BufferType int captureType) {
         bufferType = checkBufferType(captureType);
-        this.listener = listener;
+        this.callback = listener;
     }
 
     public void setCaptureListener(@NonNull Callback<T> listener) {
@@ -48,7 +65,18 @@ public abstract class AbstractRecorder<T> extends AudioComponents {
     public abstract void reset();
     public abstract void release();
 
+    protected void onNewAudioBuffer(T data) {
+        Message message = new Message();
+        message.what = MSG_NEW_AUDIO_BUFFER;
+        message.obj = data;
+        handler.sendMessage(message);
+    }
+
     public abstract boolean isRecording();
+
+    public void registerStateListener(RecorderEventListener listener) {
+        this.listener = listener;
+    }
 
     private void showParameters() {
         Object[][] rows = new Object[][] {
@@ -56,11 +84,16 @@ public abstract class AbstractRecorder<T> extends AudioComponents {
                 {"channels", format.getChannelCount()},
                 {"encoding", encodingToString(format.getEncoding())},
         };
-        String table = PrettyTextUtils.table("RECORDER INFO", rows);
-        System.out.println(table);
+        String metadata = PrettyTextUtils.table("RECORDER INFO", rows);
+        BoxLogger.info(metadata);
     }
 
     public interface Callback<T> {
         void onAudioBuffer(T data);
+    }
+
+    public interface RecorderEventListener {
+        void onStart();
+        void onPause();
     }
 }

@@ -1,5 +1,7 @@
 package cn.touchair.audiobox.common;
 
+import cn.touchair.audiobox.util.Prerequisites;
+
 public class AudioFrame<T> {
 
     private boolean stereo = true;

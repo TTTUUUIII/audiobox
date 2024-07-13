@@ -1,4 +1,4 @@
-package cn.touchair.audiobox.common;
+package cn.touchair.audiobox.util;
 
 public final class Prerequisites {
     private Prerequisites() {}

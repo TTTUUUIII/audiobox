@@ -55,24 +55,26 @@ public class AudioWaveView extends View {
         mH = getMeasuredHeight();
     }
 
-    public void updateAudioData(AudioFrame<short[]> frame) {
-        if (frame.stream0 != null) updateStream0(frame.stream0);
-        if (frame.stream1 != null) updateStream1(frame.stream1);
+    public void updateAudioData(@Nullable AudioFrame<short[]> frame) {
+        if (frame != null) {
+            if (frame.stream0 != null) updateStream0(frame.stream0);
+            if (frame.stream1 != null) updateStream1(frame.stream1);
+        }
     }
 
     private void updateStream0(short[] data) {
         float[] normalized = normalize(data);
-        int mHandleBlockSize = 100;
-        if (normalized.length < mHandleBlockSize) {
+        int handleBlockSize = 100;
+        if (normalized.length < handleBlockSize) {
             push(normalized, 0, normalized.length, true);
             mHandler.sendEmptyMessage(MSG_DRAW_SNAPSHOT);
         } else {
             int offset = 0;
             int length;
-            int numberOfBlocks = (int) Math.ceil((double) normalized.length / mHandleBlockSize);
+            int numberOfBlocks = (int) Math.ceil((double) normalized.length / handleBlockSize);
             do {
-                if (offset + mHandleBlockSize < normalized.length) {
-                    length = mHandleBlockSize;
+                if (offset + handleBlockSize < normalized.length) {
+                    length = handleBlockSize;
                 } else {
                     length = normalized.length - offset;
                 }
@@ -136,7 +138,7 @@ public class AudioWaveView extends View {
         return normalized;
     }
 
-    private static final int MARGIN_PX = 8;
+    private static final int MARGIN_PX = 4;
     private final RectF RECTF = new RectF();
     @Override
     protected synchronized void onDraw(@NonNull Canvas canvas) {
@@ -144,7 +146,7 @@ public class AudioWaveView extends View {
         drawArea(canvas);
         /*For stream#0*/
         mPaint.setColor(Color.BLUE);
-        float axis = mH / 4 - (float) MARGIN_PX / 2;
+        float axis = (mH / 2 - MARGIN_PX) / 2;
         int length = mDataDeque0.size();
         float xStep = mW / length;
 
@@ -152,7 +154,7 @@ public class AudioWaveView extends View {
         float max = 0F;
         for (float it: mDataDeque0) {
             RECTF.left = index * xStep;
-            RECTF.top = axis * (1 - it);
+            RECTF.top = axis - it * (mH - 2 * MARGIN_PX) / 4;
             RECTF.right = RECTF.left + xStep;
             RECTF.bottom = axis;
             canvas.drawRect(RECTF, mPaint);
@@ -166,7 +168,7 @@ public class AudioWaveView extends View {
 
         /*For stream#1*/
         mPaint.setColor(Color.RED);
-        axis = mH - mH / 4 + (float) MARGIN_PX / 2;
+        axis = (3 * mH + 2 * MARGIN_PX) / 4;
         length = mDataDeque1.size();
         xStep = mW / length;
 
@@ -174,7 +176,7 @@ public class AudioWaveView extends View {
         max = 0F;
         for (float it: mDataDeque1) {
             RECTF.left = index * xStep;
-            RECTF.top = axis - it * mH / 4;
+            RECTF.top = axis - it * (mH - 2 * MARGIN_PX) / 4;
             RECTF.right = RECTF.left + xStep;
             RECTF.bottom = axis;
             canvas.drawRect(RECTF, mPaint);

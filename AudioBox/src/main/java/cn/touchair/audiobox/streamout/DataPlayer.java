@@ -3,31 +3,32 @@ package cn.touchair.audiobox.streamout;
 import android.media.AudioAttributes;
 import android.media.AudioFormat;
 import android.media.AudioTrack;
+import android.os.SystemClock;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import cn.touchair.audiobox.common.LoopThread;
-import cn.touchair.audiobox.common.Prerequisites;
-import cn.touchair.audiobox.util.RawPacket;
+import cn.touchair.audiobox.util.Prerequisites;
+import cn.touchair.audiobox.common.AudioPacket;
 
-public class RawPlayer extends AbstractPlayer<RawPacket> {
+public class DataPlayer extends AbstractPlayer<AudioPacket> {
 
     private boolean mReleased = false;
     private boolean mPrepared = false;
     private int mMinBufferSize;
     private PlaybackThread mThread;
 
-    public RawPlayer() {
+    public DataPlayer() {
         super();
     }
 
-    public RawPlayer(@NonNull AudioAttributes attributes) {
+    public DataPlayer(@NonNull AudioAttributes attributes) {
         super(attributes);
     }
 
     @Override
-    public void setAudioSource(@NonNull RawPacket packet, @Nullable AudioFormat format) {
+    public void setAudioSource(@NonNull AudioPacket packet, @Nullable AudioFormat format) {
         Prerequisites.check(!mReleased, "Player already released!");
         super.setAudioSource(packet, format);
         mMinBufferSize = AudioTrack.getMinBufferSize(
@@ -101,7 +102,7 @@ public class RawPlayer extends AbstractPlayer<RawPacket> {
                 track.play();
                 playing = true;
                 if (listener != null) {
-                    listener.onPlay();
+                    handler.post(listener::onPlay);
                 }
             }
         }
@@ -111,7 +112,7 @@ public class RawPlayer extends AbstractPlayer<RawPacket> {
                 playing = false;
                 track.pause();
                 if (listener != null) {
-                    listener.onPause();
+                    handler.postAtTime(listener::onPause, SystemClock.uptimeMillis() + 100);
                 }
             }
         }

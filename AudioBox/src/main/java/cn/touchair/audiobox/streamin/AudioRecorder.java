@@ -4,14 +4,14 @@ import android.annotation.SuppressLint;
 import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
-import android.util.Log;
+import android.os.SystemClock;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresPermission;
 
 import cn.touchair.audiobox.annotations.BufferType;
 import cn.touchair.audiobox.common.LoopThread;
-import cn.touchair.audiobox.common.Prerequisites;
+import cn.touchair.audiobox.util.Prerequisites;
 
 public class AudioRecorder<T> extends AbstractRecorder<T> {
 
@@ -41,6 +41,7 @@ public class AudioRecorder<T> extends AbstractRecorder<T> {
             mThread.start();
             mPrepared = true;
         }
+        if (mThread.recording) return;
         mThread.startRecorder();
     }
 
@@ -109,7 +110,7 @@ public class AudioRecorder<T> extends AbstractRecorder<T> {
             if (readNum > 0 && listener != null) {
                 final short[] dest = new short[readNum];
                 System.arraycopy(buffer1, 0, dest, 0, dest.length);
-                listener.onAudioBuffer((T)dest);
+                onNewAudioBuffer((T) dest);
             }
         }
 
@@ -118,7 +119,7 @@ public class AudioRecorder<T> extends AbstractRecorder<T> {
             if (readNum > 0 && listener != null) {
                 final byte[] dest = new byte[readNum];
                 System.arraycopy(buffer2, 0, dest, 0, dest.length);
-                listener.onAudioBuffer((T) dest);
+                onNewAudioBuffer((T) dest);
             }
         }
 
@@ -127,7 +128,7 @@ public class AudioRecorder<T> extends AbstractRecorder<T> {
             if (readNum > 0 && listener != null) {
                 final float[] dest = new float[readNum];
                 System.arraycopy(buffer3, 0, dest, 0, dest.length);
-                listener.onAudioBuffer((T) dest);
+                onNewAudioBuffer((T) dest);
             }
         }
 
@@ -136,6 +137,9 @@ public class AudioRecorder<T> extends AbstractRecorder<T> {
             if (recording) return;
             record.startRecording();
             recording = true;
+            if (listener != null) {
+                handler.post(listener::onStart);
+            }
         }
 
         void stopRecorder() {
@@ -143,6 +147,9 @@ public class AudioRecorder<T> extends AbstractRecorder<T> {
             if (recording) {
                 recording = false;
                 record.stop();
+                if (listener != null) {
+                    handler.postAtTime(listener::onPause, SystemClock.uptimeMillis() + 100);
+                }
             }
         }
 

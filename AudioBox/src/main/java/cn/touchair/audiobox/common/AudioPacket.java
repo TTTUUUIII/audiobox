@@ -1,13 +1,15 @@
-package cn.touchair.audiobox.util;
+package cn.touchair.audiobox.common;
 
 import java.util.Arrays;
 
-public class RawPacket {
+import cn.touchair.audiobox.util.AudioUtils;
+
+public class AudioPacket {
     public byte[] header;
     public byte[] body;
     public byte[] tail;
 
-    private RawPacket(byte[] header, byte[] body, byte[] tail) {
+    private AudioPacket(byte[] header, byte[] body, byte[] tail) {
         this.header = header;
         this.body = body;
         this.tail = tail;
@@ -66,8 +68,8 @@ public class RawPacket {
             return setTail(AudioUtils.asByteArray(tail));
         }
 
-        public RawPacket build() {
-            return new RawPacket(header, body, tail);
+        public AudioPacket build() {
+            return new AudioPacket(header, body, tail);
         }
     }
 }

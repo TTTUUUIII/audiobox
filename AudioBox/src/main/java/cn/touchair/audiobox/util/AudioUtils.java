@@ -44,28 +44,6 @@ public abstract class AudioUtils {
         }
     }
 
-    /**
-     * Generate wav file header
-     * @param fileLen
-     * @param sampleRate
-     * @param channels
-     * @param bps
-     * @return
-     */
-    public static byte[] generateWavHeader(long fileLen, long sampleRate, int channels, int bps) {
-        WaveHeader waveHeader = new WaveHeader(WaveHeader.FORMAT_PCM, (short) channels, (short) sampleRate, (short) bps, (int) fileLen);
-        byte[] res = new byte[0];
-        try (ByteArrayOutputStream fd = new ByteArrayOutputStream()){
-            waveHeader.write(fd);
-            fd.flush();
-            res = fd.toByteArray();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        return res;
-    }
-
-
     /*For data convert*/
     public static short[] asShortArray(byte[] src, int offset, int len) {
         int dstLength = len >>> 1;

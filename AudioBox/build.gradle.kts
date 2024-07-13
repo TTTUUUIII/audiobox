@@ -19,9 +19,9 @@ android {
         singleVariant("release")
     }
 
-    testFixtures {
-        enable = true
-    }
+//    testFixtures {
+//        enable = true
+//    }
 
     buildTypes {
         release {
