@@ -1,6 +1,6 @@
 package cn.touchair.audiobox.common
 
-import cn.touchair.audiobox.util.BoxLogger
+import cn.touchair.audiobox.util.Logger
 
 abstract class LoopThread(
     private val tag: String = "AudioBox#LoopThread#${nextUniqueId()}"
@@ -27,11 +27,11 @@ abstract class LoopThread(
     fun isActive(): Boolean = !isInterrupted
 
     open fun onEnterLoop() {
-        BoxLogger.info("onEnterLoop@$tag")
+        Logger.info("onEnterLoop@$tag")
     }
     abstract fun onLoop(): Boolean
     open fun onExitLoop() {
-        BoxLogger.info("onExitLoop@$tag")
+        Logger.info("onExitLoop@$tag")
     }
 
     companion object {

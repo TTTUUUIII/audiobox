@@ -35,6 +35,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         initView();
+        mViewModel.enableMantis();
     }
 
     @Override

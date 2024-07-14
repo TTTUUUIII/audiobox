@@ -9,4 +9,6 @@
     <string name="sample_rate">Sample Rate</string>
     <string name="channels">Channels</string>
     <string name="open_explorer">Open Explorer</string>
+    <string name="label_cpu_usage">Cpu Usage:</string>
+    <string name="label_mem_usage">Memory Usage:</string>
 </resources>

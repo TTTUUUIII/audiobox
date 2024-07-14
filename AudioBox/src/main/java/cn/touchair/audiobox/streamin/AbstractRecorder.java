@@ -8,7 +8,7 @@ import android.os.Message;
 import androidx.annotation.NonNull;
 
 import cn.touchair.audiobox.annotations.BufferType;
-import cn.touchair.audiobox.util.BoxLogger;
+import cn.touchair.audiobox.util.Logger;
 import cn.touchair.audiobox.util.PrettyTextUtils;
 import cn.touchair.audiobox.interfaces.AudioComponents;
 
@@ -85,7 +85,7 @@ public abstract class AbstractRecorder<T> extends AudioComponents {
                 {"encoding", encodingToString(format.getEncoding())},
         };
         String metadata = PrettyTextUtils.table("RECORDER INFO", rows);
-        BoxLogger.info(metadata);
+        Logger.info(metadata);
     }
 
     public interface Callback<T> {

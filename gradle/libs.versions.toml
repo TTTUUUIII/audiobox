@@ -1,0 +1,22 @@
+[versions]
+appcompat = "1.6.1"
+coreKtx = "1.13.1"
+espressoCore = "3.5.1"
+greenmantis = "1.0.0-alpha"
+junit = "4.13.2"
+junitVersion = "1.1.5"
+material = "1.8.0"
+constraintlayout = "2.1.4"
+
+[libraries]
+androidx-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "appcompat" }
+androidx-constraintlayout = { module = "androidx.constraintlayout:constraintlayout", version.ref = "constraintlayout" }
+androidx-core-ktx = { module = "androidx.core:core-ktx", version.ref = "coreKtx" }
+androidx-espresso-core = { module = "androidx.test.espresso:espresso-core", version.ref = "espressoCore" }
+androidx-junit = { module = "androidx.test.ext:junit", version.ref = "junitVersion" }
+junit = { module = "junit:junit", version.ref = "junit" }
+greenmantis = { module = "com.github.TTTUUUIII:GreenMantis", version.ref = "greenmantis" }
+material = { module = "com.google.android.material:material", version.ref = "material" }
+
+[plugins]
+

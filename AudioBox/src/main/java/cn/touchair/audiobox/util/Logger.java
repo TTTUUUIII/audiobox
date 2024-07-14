@@ -4,9 +4,9 @@ import android.util.Log;
 
 import java.util.Locale;
 
-public final class BoxLogger {
+public final class Logger {
     private static final String TAG = "AudioBox";
-    private BoxLogger() {}
+    private Logger() {}
 
     public static void debug(String msg) {
         Log.d(TAG, msg);

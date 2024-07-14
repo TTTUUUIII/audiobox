@@ -13,6 +13,9 @@ import androidx.annotation.Nullable;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.outlook.wn123o.mantis.Mantis;
+import com.outlook.wn123o.mantis.interfaces.MantisListener;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -31,10 +34,8 @@ import cn.touchair.audiobox.streamout.AudioPlayer;
 import cn.touchair.audiobox.util.AudioUtils;
 import cn.touchair.audiobox.util.TimeUtils;
 
-public class MainActivityViewModel extends ViewModel {
-
+public class MainActivityViewModel extends ViewModel implements MantisListener {
     public static final int REQUEST_AUDIO_RECORD_PERMISSION = 1;
-
     public static final File EXPORT_FOLDER;
 
     static {
@@ -45,6 +46,10 @@ public class MainActivityViewModel extends ViewModel {
             EXPORT_FOLDER = App.requireApplicationContext().getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS);
         }
     }
+
+    public final MutableLiveData<Float> cupUsage = new MutableLiveData<Float>();
+    public final MutableLiveData<Float> memUsage = new MutableLiveData<Float>();
+    private Mantis mMantis;
 
     private AudioPlayer mAudioPlayer;
     @SuppressLint("MissingPermission")
@@ -94,6 +99,13 @@ public class MainActivityViewModel extends ViewModel {
         if (allow && waitingRecordAudio) {
             toggleRecord();
             waitingRecordAudio = false;
+        }
+    }
+
+    public void enableMantis() {
+        if (mMantis == null) {
+            mMantis = Mantis.create(this);
+            mMantis.follow();
         }
     }
 
@@ -251,5 +263,19 @@ public class MainActivityViewModel extends ViewModel {
             mAudioPlayer.release();
             mAudioPlayer = null;
         }
+        if (mMantis != null) {
+            mMantis.kill();
+        }
+    }
+
+    @Override
+    public void onSystemMemSummary(long l, long l1, long l2, long l3) {
+
+    }
+
+    @Override
+    public void onSummary(int i, String s, float v, float v1) {
+        cupUsage.postValue(v);
+        memUsage.postValue(v1);
     }
 }

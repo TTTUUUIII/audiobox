@@ -1,23 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout>
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
 
     <data>
+
         <variable
             name="viewModel"
             type="cn.touchair.audiobox.view.MainActivityViewModel" />
     </data>
 
-    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    <RelativeLayout
         xmlns:app="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:padding="@dimen/padding_small"
         tools:context=".MainActivity">
-
         <LinearLayout
+            android:id="@+id/layout_settings"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:baselineAligned="true"
             android:orientation="horizontal">
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="0dp"
@@ -50,6 +52,41 @@
                     android:text="@={viewModel.channels}"
                     tools:ignore="LabelFor" />
             </com.google.android.material.textfield.TextInputLayout>
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/layout_settings"
+            android:layout_marginTop="@dimen/padding_small"
+            android:orientation="vertical">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/label_cpu_usage" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingHorizontal="@dimen/padding_small"
+                    android:text="@{String.format(`%.1f%%`, viewModel.cupUsage)}"/>
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/label_mem_usage" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingHorizontal="@dimen/padding_small"
+                    android:text="@{String.format(`%.1f%%`, viewModel.memUsage)}"/>
+            </LinearLayout>
         </LinearLayout>
 <!--        <cn.touchair.audiobox.view.AudioSpectrumView-->
 <!--            android:layout_above="@id/audio_wave_view"-->
