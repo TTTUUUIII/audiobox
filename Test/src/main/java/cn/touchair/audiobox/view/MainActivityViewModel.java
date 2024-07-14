@@ -14,7 +14,6 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -131,6 +130,7 @@ public class MainActivityViewModel extends ViewModel {
         }
     }
 
+    private File mLoadedAudioFile;
     private void togglePlay() {
         final Context applicationContext = App.requireApplicationContext();
         if (mAudioRecorder != null && mAudioRecorder.isRecording()) {
@@ -149,8 +149,11 @@ public class MainActivityViewModel extends ViewModel {
                 if (sampleRate != mSampleRate || channels != mChannels) {
                     createAudioPlayer();
                 }
-                mAudioPlayer.reset();
-                mAudioPlayer.setAudioSource(mLastRecordFile, mAudioOutFormat);
+                if (mLoadedAudioFile != mLastRecordFile) {
+                    mAudioPlayer.reset();
+                    mAudioPlayer.setAudioSource(mLastRecordFile, mAudioOutFormat);
+                    mLoadedAudioFile = mLastRecordFile;
+                }
                 mAudioPlayer.play();
             }
         } else {
