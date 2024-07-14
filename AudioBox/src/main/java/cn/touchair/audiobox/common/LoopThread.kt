@@ -24,7 +24,7 @@ abstract class LoopThread(
         interrupt()
     }
 
-    fun isActive(): Boolean = !interrupted()
+    fun isActive(): Boolean = !isInterrupted
 
     open fun onEnterLoop() {
         BoxLogger.info("onEnterLoop@$tag")
