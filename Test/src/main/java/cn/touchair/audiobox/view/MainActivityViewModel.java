@@ -5,31 +5,47 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.media.AudioFormat;
+import android.os.Environment;
 import android.view.View;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
+import java.io.RandomAccessFile;
+import java.util.Locale;
 
 import cn.touchair.audiobox.App;
 import cn.touchair.audiobox.R;
-import cn.touchair.audiobox.Settings;
+import cn.touchair.audiobox.common.Settings;
 import cn.touchair.audiobox.common.AudioFrame;
+import cn.touchair.audiobox.common.WaveHeader;
 import cn.touchair.audiobox.streamin.AbstractRecorder;
 import cn.touchair.audiobox.streamin.AudioRecorder;
 import cn.touchair.audiobox.streamout.AbstractPlayer;
 import cn.touchair.audiobox.streamout.AudioPlayer;
 import cn.touchair.audiobox.util.AudioUtils;
+import cn.touchair.audiobox.util.TimeUtils;
 
 public class MainActivityViewModel extends ViewModel {
 
     public static final int REQUEST_AUDIO_RECORD_PERMISSION = 1;
+
+    public static final File EXPORT_FOLDER;
+
+    static {
+        File downloadsDirectory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+        if (downloadsDirectory.canWrite() && downloadsDirectory.canRead()) {
+            EXPORT_FOLDER = downloadsDirectory;
+        } else {
+            EXPORT_FOLDER = App.requireApplicationContext().getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS);
+        }
+    }
 
     private AudioPlayer mAudioPlayer;
     @SuppressLint("MissingPermission")
@@ -38,7 +54,6 @@ public class MainActivityViewModel extends ViewModel {
     public final MutableLiveData<AudioFrame<short[]>> audioFrame = new MutableLiveData<>();
     public final MutableLiveData<Boolean> playing = new MutableLiveData<>(false);
     public final MutableLiveData<Boolean> recording = new MutableLiveData<>(false);
-
     private int mSampleRate = Settings.get(Settings.KEY_AUDIO_SAMPLE_RATE, 44100);
     private int mChannels = Settings.get(Settings.KEY_AUDIO_CHANNELS, 2);
     private AudioFormat mAudioInFormat;
@@ -122,13 +137,7 @@ public class MainActivityViewModel extends ViewModel {
             Toast.makeText(applicationContext, R.string.stop_recorder, Toast.LENGTH_SHORT).show();
             return;
         }
-        File externalCacheDir = applicationContext.getExternalCacheDir();
-        if (externalCacheDir != null) {
-            File tempFile = new File(externalCacheDir.getPath() + "/temp.pcm");
-            if (!tempFile.exists()) {
-                Toast.makeText(applicationContext, R.string.audio_file_not_exists, Toast.LENGTH_SHORT).show();
-                return;
-            }
+        if (mLastRecordFile != null && mLastRecordFile.exists()) {
             if (mAudioPlayer == null) {
                 createAudioPlayer();
             }
@@ -141,32 +150,36 @@ public class MainActivityViewModel extends ViewModel {
                     createAudioPlayer();
                 }
                 mAudioPlayer.reset();
-                mAudioPlayer.setAudioSource(tempFile, mAudioOutFormat);
+                mAudioPlayer.setAudioSource(mLastRecordFile, mAudioOutFormat);
                 mAudioPlayer.play();
             }
+        } else {
+            Toast.makeText(applicationContext, R.string.audio_file_not_exists, Toast.LENGTH_SHORT).show();
+            return;
         }
     }
 
-    private OutputStream mStream;
+    private RandomAccessFile mAudioFile;
+    private @Nullable File mLastRecordFile;
 
     private void createOutStream() {
-        Context applicationContext = App.requireApplicationContext();
         try {
-            File externalCacheDir = applicationContext.getExternalCacheDir();
-            if (externalCacheDir != null) {
-                mStream = new FileOutputStream(externalCacheDir.getPath() + "/temp.pcm");
-            }
+            final String filePath = String.format(Locale.US, "%s/Record_%s.wav", EXPORT_FOLDER, TimeUtils.formattedDate());
+            mAudioFile = new RandomAccessFile(filePath, "rw");
+            mLastRecordFile = new File(filePath);
         } catch (FileNotFoundException e) {
             e.printStackTrace(System.out);
         }
     }
 
     private void closeOutStream() {
-        if (mStream != null) {
+        if (mAudioFile != null) {
             try {
-                mStream.flush();
-                mStream.close();
-                mStream = null;
+                WaveHeader waveHeader = new WaveHeader(WaveHeader.FORMAT_PCM, (short) mChannels, mSampleRate, (short) 16, (int) mAudioFile.length());
+                mAudioFile.seek(0);
+                waveHeader.write(mAudioFile);
+                mAudioFile.close();
+                mAudioFile = null;
             } catch (IOException e) {
                 e.printStackTrace(System.out);
             }
@@ -184,7 +197,7 @@ public class MainActivityViewModel extends ViewModel {
         mAudioRecorder = new AudioRecorder<>(mAudioInFormat);
         mAudioRecorder.setCaptureListener(data -> {
             try {
-                mStream.write(AudioUtils.asByteArray(data));
+                mAudioFile.write(AudioUtils.asByteArray(data));
             } catch (IOException e) {
                 e.printStackTrace(System.out);
             }

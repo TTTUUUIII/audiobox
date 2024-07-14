@@ -16,6 +16,7 @@ import androidx.annotation.Nullable;
 
 import java.util.ArrayDeque;
 
+import cn.touchair.audiobox.R;
 import cn.touchair.audiobox.common.AudioFrame;
 
 public class AudioWaveView extends View {
@@ -153,6 +154,7 @@ public class AudioWaveView extends View {
         int index = 0;
         float max = 0F;
         for (float it: mDataDeque0) {
+            if (it > 1F) throw new RuntimeException("" + it);
             RECTF.left = index * xStep;
             RECTF.top = axis - it * (mH - 2 * MARGIN_PX) / 4;
             RECTF.right = RECTF.left + xStep;
@@ -189,9 +191,10 @@ public class AudioWaveView extends View {
         }
     }
 
+
     private void drawArea(Canvas canvas) {
         int color = mPaint.getColor();
-        mPaint.setARGB(0x33, 0x00, 0x00, 0x00);
+        mPaint.setColor(getContext().getColor(R.color.primary) & 0x00FFFFFF | 0x33000000);
         RECTF.top = 0;
         RECTF.left = 0;
         RECTF.right = mW;

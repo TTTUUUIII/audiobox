@@ -5,6 +5,8 @@ import android.content.Context;
 
 import java.lang.ref.WeakReference;
 
+import cn.touchair.audiobox.common.Settings;
+
 public class App extends Application {
 
     private static WeakReference<Context> _applicationContextRef;

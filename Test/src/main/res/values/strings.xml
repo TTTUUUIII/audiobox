@@ -8,4 +8,5 @@
     <string name="stop_player">Stop player first!</string>
     <string name="sample_rate">Sample Rate</string>
     <string name="channels">Channels</string>
+    <string name="open_explorer">Open Explorer</string>
 </resources>

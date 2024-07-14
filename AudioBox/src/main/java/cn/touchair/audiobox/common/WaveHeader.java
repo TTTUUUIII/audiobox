@@ -13,9 +13,18 @@ package cn.touchair.audiobox.common;/*
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import androidx.annotation.NonNull;
+
+import java.io.DataOutput;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.RandomAccessFile;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.util.Locale;
+
+import cn.touchair.audiobox.util.AudioUtils;
 
 /**
  * This class represents the header of a WAVE format audio file, which usually
@@ -237,23 +246,60 @@ public class WaveHeader {
 
         return HEADER_LENGTH;
     }
+
+    public int write(DataOutput out) throws IOException {
+        writeId(out, "RIFF");
+        writeInt(out, 36 + mNumBytes);
+        writeId(out, "WAVE");
+        writeId(out, "fmt ");
+        writeInt(out,16);
+        writeShort(out, mFormat);
+        writeShort(out, mNumChannels);
+        writeInt(out, mSampleRate);
+        writeInt(out, mNumChannels * mSampleRate * mBitsPerSample / 8);
+        writeShort(out, (short)(mNumChannels * mBitsPerSample / 8));
+        writeShort(out, mBitsPerSample);
+        writeId(out, "data");
+        writeInt(out, mNumBytes);
+        return HEADER_LENGTH;
+    }
+
     private static void writeId(OutputStream out, String id) throws IOException {
         for (int i = 0; i < id.length(); i++) out.write(id.charAt(i));
     }
+
+    private static void writeId(DataOutput out, String id) throws IOException {
+        for (int i = 0; i < id.length(); i++) out.writeByte(id.charAt(i));
+    }
+
     private static void writeInt(OutputStream out, int val) throws IOException {
         out.write(val >> 0);
         out.write(val >> 8);
         out.write(val >> 16);
         out.write(val >> 24);
     }
+
+    private static void writeInt(DataOutput out, int val) throws IOException {
+        out.writeByte(val >> 0);
+        out.writeByte(val >> 8);
+        out.writeByte(val >> 16);
+        out.writeByte(val >> 24);
+    }
+
     private static void writeShort(OutputStream out, short val) throws IOException {
         out.write(val >> 0);
         out.write(val >> 8);
     }
 
+    private static void writeShort(DataOutput out, short val) throws IOException {
+        out.writeByte(val >> 0);
+        out.writeByte(val >> 8);
+    }
+
+    @NonNull
     @Override
     public String toString() {
-        return String.format(
+        return String.format(Locale.US,
                 "WaveHeader format=%d numChannels=%d sampleRate=%d bitsPerSample=%d numBytes=%d",
                 mFormat, mNumChannels, mSampleRate, mBitsPerSample, mNumBytes);
     }

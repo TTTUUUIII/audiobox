@@ -9,11 +9,13 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.Objects;
 
 import cn.touchair.audiobox.common.LoopThread;
+import cn.touchair.audiobox.common.WaveHeader;
 import cn.touchair.audiobox.util.Prerequisites;
 
 public class AudioPlayer extends AbstractPlayer<File>{
@@ -33,17 +35,14 @@ public class AudioPlayer extends AbstractPlayer<File>{
 
     @Override
     public void setAudioSource(@NonNull File file, @Nullable AudioFormat format) {
-        super.setAudioSource(file, format);
         Prerequisites.check(file.exists(), "File " + file + " not found!");
         Prerequisites.check(file.isFile(), "File " + file + " not a file type!");
-        String fileName = file.getName();
-        if (fileName.endsWith("wav")) {
+        AudioFormat audioFormat = readAudioFileHeader(file);
+        if (audioFormat != null) {
+            format = audioFormat;
             mOffset = 44;
-        } else if (fileName.endsWith("pcm")) {
-            mOffset = 0;
-        } else {
-            throw new RuntimeException("This file type not support");
         }
+        super.setAudioSource(file, format);
     }
 
     public void setAudioSource(@NonNull String filePath) {
@@ -85,6 +84,49 @@ public class AudioPlayer extends AbstractPlayer<File>{
         reset();
         mReleased = true;
         source = null;
+    }
+
+    private @Nullable AudioFormat readAudioFileHeader(File file) {
+        String fileName = file.getName();
+        if (!fileName.endsWith("wav")) return null;
+        try (FileInputStream in = new FileInputStream(file)){
+            WaveHeader waveHeader = new WaveHeader();
+            waveHeader.read(in);
+            int sampleRate = waveHeader.getSampleRate();
+            int waveFormat = waveHeader.getFormat();
+            if (waveFormat != WaveHeader.FORMAT_PCM) return null;
+            short numChannels = waveHeader.getNumChannels();
+            short bitsPerSample = waveHeader.getBitsPerSample();
+
+            int channelMask;
+            if (numChannels == 1) {
+                channelMask = AudioFormat.CHANNEL_OUT_MONO;
+            } else if (numChannels == 2) {
+                channelMask = AudioFormat.CHANNEL_OUT_STEREO;
+            } else {
+                return null;
+            }
+
+            int encoding;
+            if (bitsPerSample == 8) {
+                encoding = AudioFormat.ENCODING_PCM_8BIT;
+            } else if (bitsPerSample == 16) {
+                encoding = AudioFormat.ENCODING_PCM_16BIT;
+            } else if (bitsPerSample == 32) {
+                encoding = AudioFormat.ENCODING_PCM_FLOAT;
+            } else {
+                return null;
+            }
+
+             return new AudioFormat.Builder()
+                    .setEncoding(encoding)
+                    .setSampleRate(sampleRate)
+                    .setChannelMask(channelMask)
+                    .build();
+        } catch (IOException ignored) {
+            ignored.printStackTrace(System.err);
+        }
+        return null;
     }
 
     @Override

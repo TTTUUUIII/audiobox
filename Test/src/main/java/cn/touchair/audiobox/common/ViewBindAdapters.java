@@ -1,10 +1,11 @@
-package cn.touchair.audiobox;
+package cn.touchair.audiobox.common;
 
 import android.graphics.Color;
 import androidx.databinding.BindingAdapter;
 
 import com.google.android.material.button.MaterialButton;
 
+import cn.touchair.audiobox.R;
 import cn.touchair.audiobox.common.AudioFrame;
 import cn.touchair.audiobox.view.AudioSpectrumView;
 import cn.touchair.audiobox.view.AudioWaveView;

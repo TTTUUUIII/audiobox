@@ -1,4 +1,4 @@
-package cn.touchair.audiobox;
+package cn.touchair.audiobox.common;
 
 import android.content.Context;
 import android.content.SharedPreferences;

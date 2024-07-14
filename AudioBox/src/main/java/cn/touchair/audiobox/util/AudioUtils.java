@@ -4,6 +4,8 @@ import androidx.annotation.NonNull;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.Objects;
 
 import cn.touchair.audiobox.common.AudioFrame;
@@ -64,6 +66,22 @@ public abstract class AudioUtils {
             byteValue[i * 2 + 1] = (byte) ((src[i] & 0xff00) >> 8);
         }
         return byteValue;
+    }
+
+    public static byte[] asByte(short v) {
+        byte[] dst = new byte[Short.BYTES];
+        for (int i = 0; i < dst.length; ++i) {
+            dst[i] = (byte) (v >> i * 8);
+        }
+        return dst;
+    }
+
+    public static byte[] asByte(int v) {
+        byte[] dst = new byte[Integer.BYTES];
+        for (int i = 0; i < dst.length; ++i) {
+            dst[i] = (byte) (v >> i * 8);
+        }
+        return dst;
     }
 
     public static short[] asShortArray(String[] src) {
