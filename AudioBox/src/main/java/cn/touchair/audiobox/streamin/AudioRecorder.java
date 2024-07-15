@@ -107,7 +107,7 @@ public class AudioRecorder<T> extends AbstractRecorder<T> {
 
         private void capture1() {
             int readNum = record.read(buffer1, 0, buffer1.length);
-            if (readNum > 0 && listener != null) {
+            if (readNum > 0) {
                 final short[] dest = new short[readNum];
                 System.arraycopy(buffer1, 0, dest, 0, dest.length);
                 onNewAudioBuffer((T) dest);
@@ -116,7 +116,7 @@ public class AudioRecorder<T> extends AbstractRecorder<T> {
 
         private void capture2() {
             int readNum = record.read(buffer2, 0, buffer2.length);
-            if (readNum > 0 && listener != null) {
+            if (readNum > 0) {
                 final byte[] dest = new byte[readNum];
                 System.arraycopy(buffer2, 0, dest, 0, dest.length);
                 onNewAudioBuffer((T) dest);
@@ -125,7 +125,7 @@ public class AudioRecorder<T> extends AbstractRecorder<T> {
 
         private void capture3() {
             int readNum = record.read(buffer3, 0, buffer3.length, AudioRecord.READ_NON_BLOCKING);
-            if (readNum > 0 && listener != null) {
+            if (readNum > 0) {
                 final float[] dest = new float[readNum];
                 System.arraycopy(buffer3, 0, dest, 0, dest.length);
                 onNewAudioBuffer((T) dest);

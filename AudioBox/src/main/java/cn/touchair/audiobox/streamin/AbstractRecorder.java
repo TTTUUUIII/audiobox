@@ -26,9 +26,11 @@ public abstract class AbstractRecorder<T> extends AudioComponents {
         public void handleMessage(@NonNull Message msg) {
             super.handleMessage(msg);
             if (msg.what == MSG_NEW_AUDIO_BUFFER) {
-                try {
-                    callback.onAudioBuffer((T) msg.obj);
-                } catch (Exception ignored) {
+                if (callback != null) {
+                    try {
+                        callback.onAudioBuffer((T) msg.obj);
+                    } catch (Exception ignored) {
+                    }
                 }
             }
         }

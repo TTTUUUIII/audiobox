@@ -14,7 +14,7 @@ public class OverflowQueue<T> {
     private float[] mQueue2;
     private int[] mQueue3;
     private final OverflowCallback<T> mCallback;
-    public OverflowQueue(@IntRange(from = 1) int size, byte queueType, @NonNull OverflowCallback<T> callback){
+    public OverflowQueue(@IntRange(from = 1) int size, @BufferType int queueType, @NonNull OverflowCallback<T> callback){
         doInitialize(size, queueType, callback);
         mCallback = callback;
     }
