@@ -1,4 +1,4 @@
-package cn.touchair.audiobox.interfaces;
+package cn.touchair.audiobox.common;
 
 import android.media.AudioAttributes;
 import android.media.AudioFormat;

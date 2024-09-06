@@ -1,6 +1,7 @@
 package cn.touchair.audiobox.streamout;
 
 import android.media.AudioAttributes;
+import android.media.AudioDeviceInfo;
 import android.media.AudioFormat;
 import android.os.Handler;
 import android.os.Looper;
@@ -13,7 +14,7 @@ import java.util.Objects;
 
 import cn.touchair.audiobox.util.Logger;
 import cn.touchair.audiobox.util.PrettyTextUtils;
-import cn.touchair.audiobox.interfaces.AudioComponents;
+import cn.touchair.audiobox.common.AudioComponents;
 
 public abstract class AbstractPlayer<T> extends AudioComponents {
     protected final String TAG = getClass().getSimpleName();
@@ -28,8 +29,8 @@ public abstract class AbstractPlayer<T> extends AudioComponents {
     protected AudioFormat format;
     protected boolean loop = false;
     protected PlayerEventListener listener;
-
     protected T source;
+    protected AudioDeviceInfo preferenceOutputDevice;
 
     protected final Handler handler = new Handler(Looper.getMainLooper()) {
         @Override
@@ -64,6 +65,10 @@ public abstract class AbstractPlayer<T> extends AudioComponents {
         this.attributes = attributes;
         this.format = format;
         showParameters();
+    }
+
+    public void setPreferenceOutputDevice(AudioDeviceInfo deviceInfo) {
+        preferenceOutputDevice = deviceInfo;
     }
 
     public void setLoop(boolean loop) {

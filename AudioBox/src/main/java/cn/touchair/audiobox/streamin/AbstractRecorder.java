@@ -10,7 +10,7 @@ import androidx.annotation.NonNull;
 import cn.touchair.audiobox.annotations.BufferType;
 import cn.touchair.audiobox.util.Logger;
 import cn.touchair.audiobox.util.PrettyTextUtils;
-import cn.touchair.audiobox.interfaces.AudioComponents;
+import cn.touchair.audiobox.common.AudioComponents;
 
 public abstract class AbstractRecorder<T> extends AudioComponents {
     protected static final int MSG_NEW_AUDIO_BUFFER = 1;

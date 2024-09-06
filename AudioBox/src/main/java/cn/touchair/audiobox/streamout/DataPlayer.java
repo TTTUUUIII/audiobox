@@ -90,6 +90,7 @@ public class DataPlayer extends AbstractPlayer<AudioPacket> {
                     .setTransferMode(AudioTrack.MODE_STREAM)
                     .setAudioAttributes(attributes)
                     .build();
+            track.setPreferredDevice(preferenceOutputDevice);
         }
 
         public boolean isPlaying() {

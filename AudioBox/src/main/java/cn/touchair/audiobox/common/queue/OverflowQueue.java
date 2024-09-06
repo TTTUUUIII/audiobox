@@ -13,8 +13,8 @@ public class OverflowQueue<T> {
     private short[] mQueue1;
     private float[] mQueue2;
     private int[] mQueue3;
-    private final OverflowCallback<T> mCallback;
-    public OverflowQueue(@IntRange(from = 1) int size, @BufferType int queueType, @NonNull OverflowCallback<T> callback){
+    private final Callback<T> mCallback;
+    public OverflowQueue(@IntRange(from = 1) int size, @BufferType int queueType, @NonNull Callback<T> callback){
         doInitialize(size, queueType, callback);
         mCallback = callback;
     }
@@ -80,7 +80,7 @@ public class OverflowQueue<T> {
         mPointer = 0;
     }
 
-    private void doInitialize(int size, @BufferType int queueType, OverflowCallback<T> callback) {
+    private void doInitialize(int size, @BufferType int queueType, Callback<T> callback) {
         switch (queueType) {
             case BufferType.BYTE:
                 mQueue0 = new byte[size];
@@ -98,5 +98,9 @@ public class OverflowQueue<T> {
                 throw new RuntimeException("Unsupported type " + queueType + " queue.");
         }
         mQueueType = queueType;
+    }
+
+    public interface Callback<T> {
+        void flow(T data);
     }
 }

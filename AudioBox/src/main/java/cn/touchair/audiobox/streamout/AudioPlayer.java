@@ -151,6 +151,7 @@ public class AudioPlayer extends AbstractPlayer<File>{
                     .setAudioFormat(format)
                     .setAudioAttributes(attributes)
                     .build();
+            track.setPreferredDevice(preferenceOutputDevice);
         }
 
 
