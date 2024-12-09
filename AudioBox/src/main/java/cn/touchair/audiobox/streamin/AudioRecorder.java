@@ -1,6 +1,7 @@
 package cn.touchair.audiobox.streamin;
 
 import android.annotation.SuppressLint;
+import android.media.AudioDeviceInfo;
 import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
@@ -11,6 +12,7 @@ import androidx.annotation.RequiresPermission;
 
 import cn.touchair.audiobox.annotations.BufferType;
 import cn.touchair.audiobox.common.LoopThread;
+import cn.touchair.audiobox.util.Logger;
 import cn.touchair.audiobox.util.Prerequisites;
 
 public class AudioRecorder<T> extends AbstractRecorder<T> {
@@ -18,6 +20,7 @@ public class AudioRecorder<T> extends AbstractRecorder<T> {
     private boolean mPrepared = false;
     private boolean mReleased = false;
     private RecordThread mThread;
+    private AudioDeviceInfo mDevice;
 
     @RequiresPermission("android.permission.RECORD_AUDIO")
     public AudioRecorder() {
@@ -54,12 +57,19 @@ public class AudioRecorder<T> extends AbstractRecorder<T> {
     }
 
     @Override
+    public void setPreferredDevice(AudioDeviceInfo device) {
+        if (!device.isSource()) return;
+        mDevice = device;
+    }
+
+    @Override
     public void reset() {
         Prerequisites.check(!mReleased, "Recorder already released!");
         if (mThread != null) {
             mThread.exit();
             mThread = null;
         }
+        mDevice = null;
         mPrepared = false;
     }
 
@@ -89,6 +99,9 @@ public class AudioRecorder<T> extends AbstractRecorder<T> {
                     .setAudioFormat(format)
                     .setBufferSizeInBytes(minBufferSizeInBytes)
                     .build();
+            if (record.setPreferredDevice(mDevice)) {
+                Logger.info(String.format("AudioRecord  Device: {product=%s, type=%s}", mDevice.getProductName(), mDevice.getType()));
+            }
             switch (bufferType) {
                 case BufferType.SHORT:
                 case BufferType.INTEGER:

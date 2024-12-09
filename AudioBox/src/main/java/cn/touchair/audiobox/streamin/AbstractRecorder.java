@@ -1,5 +1,6 @@
 package cn.touchair.audiobox.streamin;
 
+import android.media.AudioDeviceInfo;
 import android.media.AudioFormat;
 import android.os.Handler;
 import android.os.Looper;
@@ -63,7 +64,7 @@ public abstract class AbstractRecorder<T> extends AudioComponents {
 
     public abstract void start();
     public abstract void pause();
-
+    public abstract void setPreferredDevice(AudioDeviceInfo device);
     public abstract void reset();
     public abstract void release();
 
